@@ -1,4 +1,4 @@
-add_library(MyoiHttp_Core core/Ipv4Addr.cpp core/TcpConnection.cpp core/TcpServer.cpp core/BufferedIo.cpp)
+add_library(MyoiHttp_Core core/Ipv4Address.cpp core/TcpConnection.cpp core/TcpServer.cpp core/BufferedIo.cpp core/SelectSet.cpp)
 
 add_executable(MyoiHttp_EchoClient echo/EchoClient.cpp)
 target_link_libraries(MyoiHttp_EchoClient MyoiHttp_Core)

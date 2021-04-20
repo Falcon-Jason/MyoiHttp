@@ -6,7 +6,7 @@
 #define NETWORK_TCPCONNECTION_H
 
 #include "BufferedIo.h"
-#include "Ipv4Addr.h"
+#include "Ipv4Address.h"
 #include "Network.h"
 #include <memory>
 

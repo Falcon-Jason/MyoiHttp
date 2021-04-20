@@ -15,6 +15,7 @@
 #include <thread>
 #include <memory>
 #include <fmt/format.h>
+#include "core/SelectSet.h"
 
 std::string ConnectionInfo(const network::TcpConnection &conn) {
     return fmt::format("({0}:{1}, {2}:{3})",

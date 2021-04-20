@@ -37,25 +37,26 @@ void HandleConsole() {
 
 int main() {
     TcpServer server{"127.0.0.1", PORT};
-    fd_set read_set;
-    FD_ZERO(&read_set);
-    FD_SET(STDIN_FILENO, &read_set);
-    FD_SET(server.fd(), &read_set);
+    SelectSet readSet{STDIN_FILENO, server.fd()};
+//    fd_set read_set;
+//    FD_ZERO(&read_set);
+//    FD_SET(STDIN_FILENO, &read_set);
+//    FD_SET(server.fd(), &read_set);
 
     for (;;) {
-        fd_set ready_set = read_set;
+//        fd_set ready_set = read_set;
+        auto readySet = readSet.select();
 
-        if (::select(server.fd() + 1, &ready_set, nullptr, nullptr, nullptr) < 0) {
-            Error("EchoServer: select error: %s.\n", strerror(errno));
-        }
+//        if (::select(server.fd() + 1, &ready_set, nullptr, nullptr, nullptr) < 0) {
+//            Error("EchoServer: select error: %s.\n", strerror(errno));
+//        }
 
-        if (FD_ISSET(server.fd(), &ready_set)) {
+        if (readySet.contains(server.fd())) {
             thread t{HandleClient, server.accept()};
             t.detach();
-//            HandleClient(server.accept());
         }
 
-        if (FD_ISSET(STDIN_FILENO, &ready_set)) {
+        if (readySet.contains(STDIN_FILENO)) {
             HandleConsole();
         }
     }

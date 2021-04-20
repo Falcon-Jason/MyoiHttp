@@ -27,7 +27,6 @@ namespace network {
     }
 
     BufferedIo::~BufferedIo() {
-        std::cout << "closed" << std::endl;
         ErrorIf(::close(this->fileDescriptor) != 0, "BufferedIo: close failed: %s.\n", strerror(errno));
     }
 

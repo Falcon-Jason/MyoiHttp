@@ -3,7 +3,7 @@
 //
 
 #include "core/TcpConnection.h"
-#include "core/Ipv4Addr.h"
+#include "core/Ipv4Address.h"
 
 namespace network {
     TcpConnection::TcpConnection(const char *address, int port)

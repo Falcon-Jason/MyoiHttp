@@ -6,7 +6,7 @@
 #define NETWORK_TCPSERVER_H
 
 //#include "MyoiHttp.h"
-#include "Ipv4Addr.h"
+#include "Ipv4Address.h"
 #include "TcpConnection.h"
 
 namespace network {

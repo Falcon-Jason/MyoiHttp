@@ -2,7 +2,7 @@
 // Created by jason on 2021/4/12.
 //
 
-#include "core/Ipv4Addr.h"
+#include "core/Ipv4Address.h"
 #include "core/Network.h"
 
 namespace network {

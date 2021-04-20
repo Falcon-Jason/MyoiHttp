@@ -5,7 +5,7 @@
  * @brief unit tests for network_core library
  */
 #include "core/BufferedIo.h"
-#include "core/Ipv4Addr.h"
+#include "core/Ipv4Address.h"
 
 #include <cstring>
 #include <gtest/gtest.h>

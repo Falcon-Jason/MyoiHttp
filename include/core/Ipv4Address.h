@@ -2,8 +2,8 @@
 // Created by jason on 2021/4/12.
 //
 
-#ifndef NETWORK_IPV4ADDR_H
-#define NETWORK_IPV4ADDR_H
+#ifndef NETWORK_IPV4ADDRESS_H
+#define NETWORK_IPV4ADDRESS_H
 
 #include <arpa/inet.h>
 
@@ -39,4 +39,4 @@ namespace network {
         static Ipv4Address PeerAddress(int socketFd);
     };
 }
-#endif //NETWORK_IPV4ADDR_H
+#endif //NETWORK_IPV4ADDRESS_H
