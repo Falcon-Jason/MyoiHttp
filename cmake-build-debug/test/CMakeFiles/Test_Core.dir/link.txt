@@ -1,1 +1,0 @@
-/usr/bin/c++ -g CMakeFiles/Test_Core.dir/Test_Core.cpp.o -o Test_Core  ../src/libnetwork_core.a -lgtest 

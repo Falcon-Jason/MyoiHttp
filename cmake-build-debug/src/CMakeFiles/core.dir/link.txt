@@ -1,2 +1,0 @@
-/usr/bin/ar qc libcore.a CMakeFiles/core.dir/core/Ipv4Addr.cpp.o CMakeFiles/core.dir/core/TcpConnection.cpp.o CMakeFiles/core.dir/core/TcpServer.cpp.o CMakeFiles/core.dir/core/BufferedIo.cpp.o
-/usr/bin/ranlib libcore.a

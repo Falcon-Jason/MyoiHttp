@@ -1,1 +1,0 @@
-/usr/bin/c++ -g CMakeFiles/MyoiHttp_EchoServer.dir/echo/EchoServer.cpp.o -o MyoiHttp_EchoServer  libMyoiHttp_Core.a -lfmt -lpthread 

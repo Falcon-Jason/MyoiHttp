@@ -1,1 +1,0 @@
-/usr/bin/c++ -g CMakeFiles/BufferedIo_Test.dir/__/test/BufferedIo_Test.cpp.o -o BufferedIo_Test  libBufferedIo.a -lgtest 

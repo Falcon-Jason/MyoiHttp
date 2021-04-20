@@ -1,2 +1,0 @@
-/usr/bin/ar qc libBufferedIo.a CMakeFiles/BufferedIo.dir/core/BufferedIo.cpp.o
-/usr/bin/ranlib libBufferedIo.a

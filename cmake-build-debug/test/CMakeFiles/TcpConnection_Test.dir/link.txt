@@ -1,1 +1,0 @@
-/usr/bin/c++ -g CMakeFiles/TcpConnection_Test.dir/__/example/TcpConnection_Test.cpp.o -o TcpConnection_Test  ../src/libnetwork_core.a -lfmt 

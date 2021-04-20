@@ -1,2 +1,0 @@
-/usr/bin/ar qc libSocket.a CMakeFiles/Socket.dir/core/Ipv4Addr.cpp.o CMakeFiles/Socket.dir/core/TcpConnection.cpp.o CMakeFiles/Socket.dir/core/TcpServer.cpp.o
-/usr/bin/ranlib libSocket.a

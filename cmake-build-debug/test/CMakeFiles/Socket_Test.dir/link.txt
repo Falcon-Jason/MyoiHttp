@@ -1,1 +1,0 @@
-/usr/bin/c++ -g CMakeFiles/Socket_Test.dir/Socket_Test.cpp.o -o Socket_Test  ../src/libnetwork_core.a -lgtest 

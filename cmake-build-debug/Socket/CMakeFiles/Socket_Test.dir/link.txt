@@ -1,1 +1,0 @@
-/usr/bin/c++ -g CMakeFiles/Socket_Test.dir/__/test/Socket_Test.cpp.o -o Socket_Test  libSocket.a -lgtest -lBufferedIo 
