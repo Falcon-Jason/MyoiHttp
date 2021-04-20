@@ -1,0 +1,1 @@
+/usr/bin/c++ -g CMakeFiles/test_core.dir/CoreTest.cpp.o -o test_core  ../src/libMyoiHttp_Core.a -lgtest 

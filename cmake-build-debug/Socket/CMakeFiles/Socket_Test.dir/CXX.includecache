@@ -1,0 +1,24 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/jason/Documents/repos/JBProjects/Network/Socket/Ipv4Addr.h
+arpa/inet.h
+-
+cstring
+-
+string
+-
+memory
+-
+
+/home/jason/Documents/repos/JBProjects/Network/Socket/Socket_Test.cpp
+Ipv4Addr.h
+/home/jason/Documents/repos/JBProjects/Network/Socket/Ipv4Addr.h
+gtest/gtest.h
+-
+

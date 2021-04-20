@@ -1,0 +1,2 @@
+/usr/bin/ar qc libmyoihttp.a CMakeFiles/myoihttp.dir/core/Ipv4Addr.cpp.o CMakeFiles/myoihttp.dir/core/TcpConnection.cpp.o CMakeFiles/myoihttp.dir/core/TcpServer.cpp.o CMakeFiles/myoihttp.dir/core/BufferedIo.cpp.o
+/usr/bin/ranlib libmyoihttp.a

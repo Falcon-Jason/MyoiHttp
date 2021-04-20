@@ -1,0 +1,1 @@
+/usr/bin/c++ -g CMakeFiles/echo_client.dir/__/src/echo/client.cpp.o -o echo_client  ../src/libnetwork_core.a -lfmt 

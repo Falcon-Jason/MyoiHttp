@@ -1,0 +1,30 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+../include/BufferedIo.h
+string
+-
+
+../include/Network.h
+bits/stdc++.h
+-
+unistd.h
+-
+arpa/inet.h
+-
+
+/home/jason/Documents/repos/JBProjects/Network/src/BufferedIo.cpp
+Network.h
+/home/jason/Documents/repos/JBProjects/Network/src/Network.h
+BufferedIo.h
+/home/jason/Documents/repos/JBProjects/Network/src/BufferedIo.h
+bits/stdc++.h
+-
+unistd.h
+-
+
