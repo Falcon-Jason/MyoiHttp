@@ -32,7 +32,7 @@ namespace network {
 
         int fd() const;
 
-        friend class TcpServer;
+        friend class TcpListener;
     };
 }
 

@@ -7,19 +7,29 @@
 
 #include <string>
 #include <map>
+#include "core/BufferedIo.h"
 
-enum class HttpRequestMethod {
-    GET,
-    POST
-};
+namespace network{
+    struct HttpRequest {
+        enum class Method {INVALID,GET,POST};
+        static Method StringToMethod(const char *str);
+        static const char * MethodToString(Method method);
 
-class HttpRequest {
-private:
-    HttpRequestMethod method;
-    std::string path;
-    std::string version;
-    map<string, string> headers;
-    string query;
-};
+        Method method{Method::INVALID};
+        std::string path{};
+        std::string version{};
+        std::map<std::string, std::string> headers{};
+        std::string body{};
+
+        HttpRequest() = default;
+
+        void parse(BufferedIo &in);
+        void toString(std::string &result);
+        void clear();
+        void error();
+
+    };
+
+}
 
 #endif //NETWORK_HTTPREQUEST_H

@@ -16,7 +16,7 @@ namespace network {
         // support for operations like `bufio_new(open())`
         // if inner function like `open()` fails, the whole program will exit,
         // which ensures that the poinunics::ter returned is always available.
-        if (fd <= 0) {
+        if (fd < 0) {
             Error("`bufio_new()` failed: %s\n",
                   errno == 0 ? "invalid argument `fileDescriptor`" : strerror(errno));
         }

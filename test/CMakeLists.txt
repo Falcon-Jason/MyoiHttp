@@ -1,3 +1,8 @@
-add_executable(test_core CoreTest.cpp)
-target_link_libraries(test_core MyoiHttp_Core)
-target_link_libraries(test_core gtest)
+add_executable(CoreTest CoreTest.cpp)
+target_link_libraries(CoreTest MyoiHttp_Core)
+target_link_libraries(CoreTest gtest)
+
+#add_executable(HttpTest HttpTest.cpp)
+#target_link_libraries(HttpTest MyoiHttp_Http)
+#target_link_libraries(HttpTest MyoiHttp_Core)
+#target_link_libraries(HttpTest gtest)

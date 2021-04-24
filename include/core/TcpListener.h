@@ -2,31 +2,33 @@
 // Created by jason on 2021/4/12.
 //
 
-#ifndef NETWORK_TCPSERVER_H
-#define NETWORK_TCPSERVER_H
+#ifndef NETWORK_TCPLISTENER_H
+#define NETWORK_TCPLISTENER_H
 
 //#include "MyoiHttp.h"
 #include "Ipv4Address.h"
 #include "TcpConnection.h"
 
 namespace network {
-    class TcpServer {
+    class TcpListener {
     private:
         int fd_;
         Ipv4Address address_;
         static constexpr int LISTENQ = 1024;
 
     public:
-        explicit TcpServer(const Ipv4Address &address);
+        explicit TcpListener(const Ipv4Address &address);
 
-        explicit TcpServer(const char *ip, int port);
+        explicit TcpListener(const char *ip, int port);
 
-        ~TcpServer();
+        ~TcpListener();
 
         int fd() const;
+
+        const Ipv4Address &address() const;
 
         TcpConnection *accept() const;
     };
 }
 
-#endif //NETWORK_TCPSERVER_H
+#endif //NETWORK_TCPLISTENER_H

@@ -16,15 +16,12 @@ namespace network {
      */
     class BufferedIo {
     private:
-        /**
-        * @brief read at most `length` bytes from file to buffer;
-        * it is the replacement of unix `read()` function,
-        * which checks the inner buffer for data;
-        * @param buffer where the read bytes to be saved;
-        * @param length the length of `buffer`
-        * @return the actual count of bytes read from file;
-        */
-        ssize_t read(char *buffer, size_t length);
+        static constexpr ssize_t BUFIO_BUFFER_SIZE = 4096;
+
+        int fileDescriptor{};                     // file descriptor
+        ssize_t bufferLength{};                   // the unread bytes in buffer
+        char *bufferPointer{};                    // the pointer to unread bytes
+        char innerBuffer[BUFIO_BUFFER_SIZE]{};    // the buffer
 
     public:
         /**
@@ -79,12 +76,15 @@ namespace network {
         int fd() const;
 
     private:
-        static constexpr ssize_t BUFIO_BUFFER_SIZE = 4096;
-
-        int fileDescriptor{};                     // file descriptor
-        ssize_t bufferLength{};                   // the unread bytes in buffer
-        char *bufferPointer{};                    // the pointer to unread bytes
-        char innerBuffer[BUFIO_BUFFER_SIZE]{};    // the buffer
+        /**
+        * @brief read at most `length` bytes from file to buffer;
+        * it is the replacement of unix `read()` function,
+        * which checks the inner buffer for data;
+        * @param buffer where the read bytes to be saved;
+        * @param length the length of `buffer`
+        * @return the actual count of bytes read from file;
+        */
+        ssize_t read(char *buffer, size_t length);
     };
 };
 

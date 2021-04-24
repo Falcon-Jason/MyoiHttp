@@ -2,7 +2,7 @@
 // Created by jason on 2021/4/20.
 //
 
-#include "echo/echo.h"
+#include "echo.h"
 
 using namespace std;
 using namespace network;
@@ -14,7 +14,8 @@ void HandleClient(TcpConnection *conn) {
 
     BufferedIo &socket = conn->io();
     while ((length = socket.readline(buffer, BUFFER_SIZE)) > 0) {
-        fmt::print("{0}.{1}: {2}", conn->peerAddress().ip(), conn->peerAddress().port(), buffer);
+//        fmt::print("{0}.{1}: {2}", conn->peerAddress().ip(), conn->peerAddress().port(), buffer);
+        fmt::print("{}", buffer);
         socket.nwrite(buffer, length);
     }
 
@@ -36,20 +37,11 @@ void HandleConsole() {
 }
 
 int main() {
-    TcpServer server{"127.0.0.1", PORT};
+    TcpListener server{"127.0.0.1", PORT};
     SelectSet readSet{STDIN_FILENO, server.fd()};
-//    fd_set read_set;
-//    FD_ZERO(&read_set);
-//    FD_SET(STDIN_FILENO, &read_set);
-//    FD_SET(server.fd(), &read_set);
 
     for (;;) {
-//        fd_set ready_set = read_set;
         auto readySet = readSet.select();
-
-//        if (::select(server.fd() + 1, &ready_set, nullptr, nullptr, nullptr) < 0) {
-//            Error("EchoServer: select error: %s.\n", strerror(errno));
-//        }
 
         if (readySet.contains(server.fd())) {
             thread t{HandleClient, server.accept()};
