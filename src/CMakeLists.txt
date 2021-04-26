@@ -1,5 +1,15 @@
-add_library(MyoiHttp_Core core/Ipv4Address.cpp core/TcpConnection.cpp core/TcpListener.cpp core/BufferedIo.cpp core/SelectSet.cpp)
-add_library(MyoiHttp_Http http/HttpRequest.cpp http/HttpParser.cpp http/HttpResponse.cpp)
+add_library(MyoiHttp_Core
+        core/Ipv4Address.cpp
+        core/TcpConnection.cpp
+        core/TcpListener.cpp
+        core/BufferedIo.cpp
+        core/SelectSet.cpp)
+
+add_library(MyoiHttp_Http
+        http/HttpRequest.cpp
+        http/HttpResponse.cpp
+        http/HttpParser.cpp
+        http/HttpGenerator.cpp)
 
 add_executable(MyoiHttp_EchoClient echo/EchoClient.cpp)
 target_link_libraries(MyoiHttp_EchoClient MyoiHttp_Core)

@@ -7,7 +7,7 @@
 
 #include "core/BufferedIo.h"
 #include "core/TcpConnection.h"
-#include "core/Network.h"
+#include "core/Error.h"
 #include <fmt/format.h>
 #include <string>
 #include "core/TcpListener.h"

@@ -2,8 +2,10 @@
 // Created by jason on 2021/4/21.
 //
 
+#include "core/Error.h"
 #include "core/SelectSet.h"
-#include "core/Network.h"
+#include <unistd.h>
+#include <arpa/inet.h>
 
 namespace network {
     SelectSet::SelectSet() {
@@ -33,7 +35,7 @@ namespace network {
         SelectSet result;
         result.set = set;
         if (::select(maxFd + 1, &result.set, nullptr, nullptr, nullptr) < 0) {
-            Error("EchoServer: select error: %s.\n", strerror(errno));
+            Error("EchoServer: select error: {}.\n", strerror(errno));
         }
         return result;
     }

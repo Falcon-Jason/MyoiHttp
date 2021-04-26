@@ -2,8 +2,9 @@
 // Created by jason on 2021/4/12.
 //
 
+#include "core/Error.h"
 #include "core/Ipv4Address.h"
-#include "core/Network.h"
+
 
 namespace network {
     Ipv4Address::Ipv4Address() : ip_{""} {

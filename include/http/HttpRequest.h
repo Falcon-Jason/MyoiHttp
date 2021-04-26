@@ -19,12 +19,12 @@ namespace network{
         std::string path{};
         std::string version{};
         std::map<std::string, std::string> headers{};
-        std::string body{};
+        std::string content{};
 
         HttpRequest() = default;
 
         void parse(BufferedIo &in);
-        void toString(std::string &result);
+        std::string toString() const;
         void clear();
         void error();
 

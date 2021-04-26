@@ -9,22 +9,27 @@
 #include <map>
 #include "core/BufferedIo.h"
 #include <fmt/format.h>
+
 namespace network {
+    const extern std::map<std::string, std::string> HttpStatusInfo;
+    const extern std::map<std::string, std::string> ContentTypes;
+    constexpr auto DEFAULT_CONTENT_TYPE = "text/plain";
+
     struct HttpResponse {
-        std::string status{};
-        std::string version{};
-        std::map<std::string, std::string> headers{};
-        std::string body{};
+        std::string status{"500"};
+        std::string version{"HTTP/1.0"};
+        std::map<std::string, std::string> headers{
+            {"Connection", "close"},
+            {"Server", "Myoi Http"}};
+        std::string content{};
 
         HttpResponse() = default;
         void parse(BufferedIo &in);
-        void toString(std::string &result);
+        std::string toString() const;
         void clear();
-        void error(int status);
-
-        template <class ...T> void append(const char *format, T ...t) {
-            body.append(fmt::format(format, t...));
-        }
+        void error(const char *status);
+        void setContentFile(const char *fileName);
+        void refreshContentLength();
     };
 }
 

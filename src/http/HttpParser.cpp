@@ -10,8 +10,7 @@
  * Body := TEXT EOF
  */
 
-#include "http/HttpRequest.h"
-#include "http/HttpResponse.h"
+#include "Http.h"
 
 #include <boost/algorithm/string.hpp>
 #include <vector>
@@ -25,28 +24,30 @@ using std::map;
 using std::string;
 
 namespace network {
+
     constexpr int BUFFER_SIZE = 4096;
-
-    static void ParseRequestLine(const std::string &line, HttpRequest &request);
-
-    static void ParseHeader(const std::string &line, HttpRequest &request);
-
-    static bool ReadLine(BufferedIo &in, std::string &line);
-
-    static void ReadAllRest(BufferedIo &in, std::string &text);
+    static void ParseRequestLine(const string &line, HttpRequest &request);
+    static void ParseHeader(const string &line, HttpRequest &request);
+    static bool GetLine(BufferedIo &in, string &line);
+    static void GetAllRest(BufferedIo &in, string &text);
 
     // HttpRequest := RequestLine CRLF (Header CRLF)* CRLF Body
-    void HttpRequest::parse(BufferedIo &in) {
+    void ParseRequest(BufferedIo &in, HttpRequest &request) {
         string buffer;
-        ReadLine(in, buffer);
-        ParseRequestLine(buffer, *this);
-        while (ReadLine(in, buffer) && buffer != "\r\n") {
-            ParseHeader(buffer, *this);
+        GetLine(in, buffer);
+        ParseRequestLine(buffer, request);
+        while (GetLine(in, buffer) && buffer != "\r\n") {
+            ParseHeader(buffer, request);
         }
 
-        if (this->method == HttpRequest::Method::INVALID) {
-            this->error();
+        if (request.method == HttpRequest::Method::INVALID) {
+            request.error();
         }
+    }
+
+
+    void ParseResponse(BufferedIo &in, HttpResponse &response) {
+
     }
 
     // RequestLine := Method SP RequestUri SP HttpVersion
@@ -96,7 +97,7 @@ namespace network {
         request.headers[name] = value;
     }
 
-    static bool ReadLine(BufferedIo &in, string &line) {
+    static bool GetLine(BufferedIo &in, string &line) {
         char buffer[BUFFER_SIZE];
         ssize_t length;
         if ((length = in.readline(buffer, BUFFER_SIZE)) <= 0) {
@@ -112,7 +113,7 @@ namespace network {
         return true;
     }
 
-    static void ReadAllRest(BufferedIo &in, string &text) {
+    static void GetAllRest(BufferedIo &in, string &text) {
         char ch;
         text.clear();
         while(in.nread(&ch, 1) > 0) {

@@ -5,7 +5,7 @@
  * @brief implementations of network library
  */
 
-#include "core/Network.h"
+#include "core/Error.h"
 #include "core/BufferedIo.h"
 #include <bits/stdc++.h>
 #include <unistd.h>
@@ -16,10 +16,8 @@ namespace network {
         // support for operations like `bufio_new(open())`
         // if inner function like `open()` fails, the whole program will exit,
         // which ensures that the poinunics::ter returned is always available.
-        if (fd < 0) {
-            Error("`bufio_new()` failed: %s\n",
-                  errno == 0 ? "invalid argument `fileDescriptor`" : strerror(errno));
-        }
+        ErrorIf(fd < 0, "BufferedIo Construction failed: {}\n",
+              errno == 0 ? "invalid argument `fileDescriptor`" : strerror(errno));
 
         this->fileDescriptor = fd;
         this->bufferLength = 0;
@@ -27,7 +25,7 @@ namespace network {
     }
 
     BufferedIo::~BufferedIo() {
-        ErrorIf(::close(this->fileDescriptor) != 0, "BufferedIo: close failed: %s.\n", strerror(errno));
+        ErrorIf(::close(this->fileDescriptor) != 0, "BufferedIo: close failed: {}}.\n", strerror(errno));
     }
 
     ssize_t BufferedIo::nread(char *userBuffer, size_t length) {

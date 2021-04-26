@@ -5,9 +5,9 @@
 #ifndef NETWORK_TCPCONNECTION_H
 #define NETWORK_TCPCONNECTION_H
 
-#include "BufferedIo.h"
-#include "Ipv4Address.h"
-#include "Network.h"
+#include "core/BufferedIo.h"
+#include "core/Ipv4Address.h"
+#include "core/Error.h"
 #include <memory>
 
 namespace network {

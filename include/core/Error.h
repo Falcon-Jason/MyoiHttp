@@ -2,17 +2,16 @@
 // Created by jason on 2021/4/12.
 //
 
-#ifndef NETWORK_NETWORK_H
-#define NETWORK_NETWORK_H
+#ifndef NETWORK_CORE_H
+#define NETWORK_CORE_H
 
 #include <bits/stdc++.h>
-#include <unistd.h>
-#include <arpa/inet.h>
+#include <fmt/format.h>
 
 namespace network {
     template <class ...T>
     [[noreturn]] void Error(const char* format, T ...t)  {
-        ::fprintf(stderr, format, t...);
+        fmt::print(stderr, format, t...);
         ::exit(EXIT_FAILURE);
     }
 
@@ -23,4 +22,4 @@ namespace network {
         }
     }
 }
-#endif //NETWORK_NETWORK_H
+#endif //NETWORK_CORE_H

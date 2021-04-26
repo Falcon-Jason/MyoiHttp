@@ -2,6 +2,7 @@
 // Created by jason on 24/4/21.
 //
 
+#include "Http.h"
 #include "http/HttpRequest.h"
 #include <fmt/format.h>
 
@@ -31,7 +32,7 @@ namespace network {
         path.clear();
         version.clear();
         headers.clear();
-        body.clear();
+        content.clear();
     }
 
     void HttpRequest::error() {
@@ -39,20 +40,11 @@ namespace network {
         method = Method::INVALID;
     }
 
-    void HttpRequest::toString(std::string &result) {
-        using fmt::format;
-        result.clear();
-        result.append(format(
-                "{} {} {}\r\n",
-                MethodToString(method),path,version));
+    void HttpRequest::parse(BufferedIo &in) {
+        return ParseRequest(in, *this);
+    }
 
-        for (auto &item : headers) {
-            result.append(format(
-                    "{}:{}\r\n",
-                    item.first, item.second));
-        }
-
-        result.append("\r\n");
-        result.append(body);
+    std::string HttpRequest::toString() const {
+        return GenerateRequest(*this);
     }
 }
