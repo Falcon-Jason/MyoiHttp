@@ -28,7 +28,7 @@ namespace network {
         std::string toString() const;
         void clear();
         void error(const char *status);
-        void setContentFile(const char *fileName);
+        void setContentFile(const char *filename);
         void refreshContentLength();
     };
 }
