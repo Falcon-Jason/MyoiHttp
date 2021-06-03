@@ -2,45 +2,47 @@
 // Created by jason on 2021/4/12.
 //
 
-#include "core/Error.h"
 #include "core/TcpConnection.h"
 #include "core/Ipv4Address.h"
+#include <cassert>
 #include <unistd.h>
 #include <arpa/inet.h>
 
-namespace network {
-    TcpConnection::TcpConnection(const char *address, int port)
-            : hostAddress_{}, peerAddress_{address, port}, io_{nullptr}{
-        ErrorIf(!peerAddress_.available(), "TcpConnection: address unavailable.\n");
+namespace myoi {
+    bool TcpConnection::connect(const Ipv4Address &address) {
+        socket_ = ::socket(AF_INET, SOCK_STREAM, 0);
+        if (socket_ < 0) { return false; }
 
-        int fd = ::socket(AF_INET, SOCK_STREAM, 0);
-        ErrorIf(fd<0,"TcpConnection: io failed: %s.\n", strerror(errno));
+        auto ret = ::connect(socket_, (sockaddr *)address.unpack(), address.size());
+        if (ret < 0) { close(); return false; }
 
-        ErrorIf(::connect(fd, peerAddress_.socketAddress(), sizeof(sockaddr_in)) != 0,
-                "TcpConnection: connect failed: {}.\n", strerror(errno));
-
-        io_.reset(new BufferedIo{fd});
-        hostAddress_ = Ipv4Address::HostAddress(fd);
+        return true;
     }
 
-    TcpConnection::TcpConnection(int fd)
-        : hostAddress_{Ipv4Address::HostAddress(fd)},
-          peerAddress_{Ipv4Address::PeerAddress(fd)},
-          io_{new BufferedIo{fd}}{}
-
-    const Ipv4Address &TcpConnection::peerAddress() const {
-        return peerAddress_;
+    bool TcpConnection::close() {
+        auto ret = ::close(socket_);
+        socket_ = -1;
+        return (ret == 0);
     }
 
-    const Ipv4Address &TcpConnection::hostAddress() const {
-        return hostAddress_;
+    bool TcpConnection::hostAddress(Ipv4Address &address) const {
+        socklen_t length = address.size();
+        auto ret = ::getsockname(socket_, (sockaddr *) address.unpack(), &length);
+        return (ret == 0);
+    }
+    bool TcpConnection::peerAddress(Ipv4Address &address) const {
+        socklen_t length = address.size();
+        auto ret = ::getpeername(socket_, (sockaddr *) address.unpack(), &length);
+        return (ret == 0);
     }
 
-    BufferedIo &TcpConnection::io() {
-        return *io_;
+    ssize_t TcpConnection::tryRead(char *buffer, size_t size) const {
+        assert(isOpen());
+        return ::read(socket_, buffer, size);
     }
 
-    int TcpConnection::fd() const {
-        return io_->fd();
+    ssize_t TcpConnection::tryWrite(const char *buffer, size_t size) const {
+        assert(isOpen());
+        return ::write(socket_, buffer, size);
     }
 }

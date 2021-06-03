@@ -1,4 +1,8 @@
-add_executable(CoreTest CoreTest.cpp)
-target_link_libraries(CoreTest libMyoiCore)
-target_link_libraries(CoreTest gtest)
-target_link_libraries(CoreTest fmt)
+add_executable(myoi_http_test
+        http/HttpRequestParserTest.cpp
+        http/HttpRequestTest.cpp
+        http/main.cpp)
+
+target_link_libraries(myoi_http_test myoi_http)
+target_link_libraries(myoi_http_test gtest)
+target_link_libraries(myoi_http_test fmt)

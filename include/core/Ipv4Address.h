@@ -6,37 +6,39 @@
 #define NETWORK_IPV4ADDRESS_H
 
 #include <arpa/inet.h>
+#include <string_view>
+#include <string>
 
-namespace network {
-    class Ipv4Address {
+namespace myoi {
+    using Socket = int;
+
+    class Ipv4Address : private sockaddr_in {
     private:
-        sockaddr_in address_{};
-        char ip_[INET_ADDRSTRLEN]{""};
 
     public:
         Ipv4Address();
 
-        explicit Ipv4Address(const char *ip, int port);
-
-        explicit Ipv4Address(const sockaddr_in &socketAddress);
+        explicit Ipv4Address(const char *address, uint16_t port);
 
         ~Ipv4Address() = default;
 
-        const char *ip() const;
+        [[nodiscard]] std::string address() const;
 
-        void setIp(const char *ip);
+        bool setAddress(const char *address);
 
-        int port() const;
+        [[nodiscard]] uint16_t port() const;
 
-        void setPort(int port);
+        void setPort(uint16_t port);
 
-        bool available() const;
+        constexpr sockaddr_in *unpack() { return static_cast<sockaddr_in *>(this); }
 
-        const sockaddr *socketAddress() const;
+        [[nodiscard]] constexpr const sockaddr_in *unpack() const { return static_cast<const sockaddr_in *>(this); }
 
-        static Ipv4Address HostAddress(int socketFd);
-
-        static Ipv4Address PeerAddress(int socketFd);
+        [[nodiscard]] constexpr auto size() const { return sizeof(sockaddr_in); }
     };
+
+    bool GetHostAddress(Socket sock, Ipv4Address &address);
+
+    bool GetPeerAddress(Socket sock, Ipv4Address &address);
 }
 #endif //NETWORK_IPV4ADDRESS_H

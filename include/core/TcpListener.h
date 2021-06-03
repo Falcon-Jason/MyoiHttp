@@ -9,25 +9,25 @@
 #include "Ipv4Address.h"
 #include "TcpConnection.h"
 
-namespace network {
+namespace myoi {
     class TcpListener {
     private:
-        int fd_;
-        Ipv4Address address_;
-        static constexpr int LISTENQ = 1024;
+        Socket socket_{-1};
+        std::unique_ptr<Ipv4Address> hostAddress_{nullptr};
 
     public:
-        explicit TcpListener(const Ipv4Address &address);
+        TcpListener() = default;
+        ~TcpListener() = default;
 
-        explicit TcpListener(const char *ip, int port);
+        bool listen(const Ipv4Address &address);
+        bool close();
 
-        ~TcpListener();
+        bool isOpen() const { return socket_ >= 0; }
+        Socket socket() const { return socket_; }
 
-        int fd() const;
+        const Ipv4Address &hostAddress() const;
 
-        const Ipv4Address &address() const;
-
-        TcpConnection *accept() const;
+        TcpConnection accept() const;
     };
 }
 

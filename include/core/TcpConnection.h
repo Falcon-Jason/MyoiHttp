@@ -5,34 +5,32 @@
 #ifndef NETWORK_TCPCONNECTION_H
 #define NETWORK_TCPCONNECTION_H
 
-#include "core/BufferedIo.h"
 #include "core/Ipv4Address.h"
-#include "core/Error.h"
 #include <memory>
 
-namespace network {
+namespace myoi {
     class TcpConnection {
     private:
-        Ipv4Address hostAddress_;
-        Ipv4Address peerAddress_;
-        std::unique_ptr<BufferedIo> io_;
-
-        explicit TcpConnection(int fd);
+        Socket socket_{-1};
 
     public:
-        explicit TcpConnection(const char *address, int port);
-
+        TcpConnection() = default;
         ~TcpConnection() = default;
 
-        const Ipv4Address &hostAddress() const;
+        bool connect(const Ipv4Address& address);
+        bool close();
 
-        const Ipv4Address &peerAddress() const;
+        [[nodiscard]] bool isOpen() const { return socket_ >= 0; }
+        [[nodiscard]] const Socket &socket() const { return socket_; }
 
-        BufferedIo &io();
+        bool hostAddress(Ipv4Address &address) const;
+        bool peerAddress(Ipv4Address &address) const;
 
-        int fd() const;
+        ssize_t tryRead(char *buffer, size_t size) const;
+        ssize_t tryWrite(const char *buffer, size_t size) const;
 
         friend class TcpListener;
+
     };
 }
 

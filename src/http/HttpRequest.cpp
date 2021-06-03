@@ -1,50 +1,67 @@
 //
-// Created by jason on 24/4/21.
+// Created by jason on 28/5/21.
 //
-
-#include "Http.h"
 #include "http/HttpRequest.h"
-#include <fmt/format.h>
+#include <cstring>
 
-namespace network {
-    HttpRequest::Method HttpRequest::StringToMethod(const char *str) {
-        if (strncmp(str, "GET\0", 4) == 0) {
-            return HttpRequest::Method::GET;
-        } else if (strncmp(str, "POST\0", 5) == 0) {
-            return HttpRequest::Method::POST;
+namespace http {
+    const char *ToString(HttpVersion version) {
+        switch (version) {
+            case HttpVersion::HTTP_0_9:
+                return "HTTP/0.9";
+            case HttpVersion::HTTP_1_0:
+                return "HTTP/1.0";
+            case HttpVersion::HTTP_1_1:
+                return "HTTP/1.1";
         }
-        return HttpRequest::Method::INVALID;
+        return "";
     }
 
-    const char * HttpRequest::MethodToString(Method method) {
+    bool FromString(const char *string, HttpVersion &version) {
+        if (strcmp(string, "HTTP/0.9") == 0) {
+            version = HttpVersion::HTTP_0_9;
+        } else if (strcmp(string, "HTTP/1.0") == 0) {
+            version = HttpVersion::HTTP_1_0;
+        } else if (strcmp(string, "HTTP/1.1") == 0) {
+            version = HttpVersion::HTTP_1_1;
+        } else {
+            return false;
+        }
+
+        return true;
+    }
+
+    const char *ToString(HttpMethod method) {
+        using Method = HttpMethod;
+
         switch (method) {
             case Method::GET:
                 return "GET";
             case Method::POST:
-                return "PUT";
-            default:
-                return "INVALID";
+                return "POST";
+            case Method::HEAD:
+                return "HEAD";
         }
+        return "";
+    }
+
+    bool FromString(const char *string, HttpMethod &method) {
+        using Method = HttpMethod;
+
+        if (strcmp(string, "GET") == 0) {
+            method = Method::GET;
+        } else if (strcmp(string, "POST") == 0) {
+            method = Method::POST;
+        } else if (strcmp(string, "HEAD") == 0) {
+            method = Method::HEAD;
+        } else {
+            return false;
+        }
+        return true;
     }
 
     void HttpRequest::clear() {
-        method = Method::INVALID;
-        path.clear();
-        version.clear();
-        headers.clear();
-        content.clear();
-    }
-
-    void HttpRequest::error() {
-        clear();
-        method = Method::INVALID;
-    }
-
-    void HttpRequest::parse(BufferedIo &in) {
-        return ParseRequest(in, *this);
-    }
-
-    std::string HttpRequest::toString() const {
-        return GenerateRequest(*this);
+        uri_.clear();
+        headers_.clear();
     }
 }
