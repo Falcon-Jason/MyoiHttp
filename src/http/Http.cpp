@@ -4,7 +4,7 @@
 #include "http/HttpRequest.h"
 #include <cstring>
 
-namespace http {
+namespace myoi {
     const char *ToString(HttpVersion version) {
         switch (version) {
             case HttpVersion::HTTP_0_9:
@@ -58,10 +58,5 @@ namespace http {
             return false;
         }
         return true;
-    }
-
-    void HttpRequest::clear() {
-        uri_.clear();
-        headers_.clear();
     }
 }

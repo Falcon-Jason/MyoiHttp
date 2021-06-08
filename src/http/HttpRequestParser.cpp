@@ -4,7 +4,7 @@
 
 #include "http/HttpRequestParser.h"
 
-namespace http {
+namespace myoi {
     constexpr int BUFFER_SIZE = 4096;
 
     enum class HttpRequestParser::Status {

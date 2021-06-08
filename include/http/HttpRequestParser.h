@@ -2,13 +2,13 @@
 // Created by jason on 30/5/21.
 //
 
-#ifndef DEMOS_HTTPREQUESTPARSER_H
-#define DEMOS_HTTPREQUESTPARSER_H
+#ifndef MYOIHTTP_HTTPREQUESTPARSER_H
+#define MYOIHTTP_HTTPREQUESTPARSER_H
 
 #include "http/HttpRequest.h"
 #include <string>
 
-namespace http {
+namespace myoi {
     class HttpRequestParser {
     public:
         enum class Status;
@@ -17,7 +17,7 @@ namespace http {
         HttpRequest request_{};
         std::string buffer_{};
         Status status_;
-        decltype(request_.headers_)::iterator headerToParse;
+        HttpHeaders::iterator headerToParse{};
 
     public:
         HttpRequestParser();
@@ -52,4 +52,4 @@ namespace http {
 }
 
 
-#endif //DEMOS_HTTPREQUESTPARSER_H
+#endif //MYOIHTTP_HTTPREQUESTPARSER_H

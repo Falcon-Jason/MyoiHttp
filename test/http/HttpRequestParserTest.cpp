@@ -9,31 +9,31 @@
 #define LONG_URI "http://www.baidu.com/index.html?id=123456"
 
 TEST(TestHttpRequestParser, ParseRequestLineOnly) {
-    http::HttpRequestParser parser{};
+    myoi::HttpRequestParser parser{};
     ASSERT_TRUE(parser.open());
     ASSERT_FALSE(parser.success());
     ASSERT_FALSE(parser.failure());
 
     parser.parse("HEAD /index.html HTTP/1.0\r\n\r\n");
     ASSERT_TRUE(parser.success());
-    ASSERT_EQ(parser.request().method(), http::HttpMethod::HEAD);
+    ASSERT_EQ(parser.request().method(), myoi::HttpMethod::HEAD);
     ASSERT_STREQ(parser.request().uri(), "/index.html");
-    ASSERT_EQ(parser.request().version(), http::HttpVersion::HTTP_1_0);
+    ASSERT_EQ(parser.request().version(), myoi::HttpVersion::HTTP_1_0);
 
     parser.clear();
     ASSERT_TRUE(parser.open());
     parser.parse("POST " LONG_URI " HTTP/1.1\r\n\r\n");
     ASSERT_TRUE(parser.success());
-    ASSERT_EQ(parser.request().method(), http::HttpMethod::POST);
+    ASSERT_EQ(parser.request().method(), myoi::HttpMethod::POST);
     ASSERT_STREQ(parser.request().uri(), LONG_URI);
-    ASSERT_EQ(parser.request().version(), http::HttpVersion::HTTP_1_1);
+    ASSERT_EQ(parser.request().version(), myoi::HttpVersion::HTTP_1_1);
 
     parser.clear();
     parser.parse("GET /\r\n\r\n");
     ASSERT_TRUE(parser.success());
-    ASSERT_EQ(parser.request().method(), http::HttpMethod::GET);
+    ASSERT_EQ(parser.request().method(), myoi::HttpMethod::GET);
     ASSERT_STREQ(parser.request().uri(), "/");
-    ASSERT_EQ(parser.request().version(), http::HttpVersion::HTTP_0_9);
+    ASSERT_EQ(parser.request().version(), myoi::HttpVersion::HTTP_0_9);
 
     parser.clear();
     parser.parse("\r\n");
@@ -58,7 +58,7 @@ TEST(TestHttpRequestParser, ParseChromeRequest) {
         {"Accept-Encoding", "gzip, deflate, br"},
         {"Accept-Language", "zh-CN,zh;q=0.9"}};
 
-    http::HttpRequestParser parser{};
+    myoi::HttpRequestParser parser{};
     parser.parse("GET " LONG_URI " HTTP/1.0\r\n");
     ASSERT_TRUE(parser.open());
     for (auto& header : headers) {
