@@ -35,9 +35,5 @@ namespace myoi {
 
         void setPort(uint16_t port);
     };
-
-    bool GetHostAddress(Socket sock, Ipv4Address &address);
-
-    bool GetPeerAddress(Socket sock, Ipv4Address &address);
 }
 #endif //MYOIHTTP_IPV4ADDRESS_H

@@ -9,21 +9,27 @@
 #include "http/HttpRequest.h"
 #include "http/HttpResponse.h"
 #include "core/TcpSocket.h"
+#include "core/FileInfo.h"
 
 namespace myoi {
     class HttpRequestHandler {
     private:
-        HttpResponse response{};
-        std::string data{};
+        HttpResponse response_{};
+        FileInfo file_{};
+        bool hasDataToSend_{false};
 
     public:
         HttpRequestHandler() = default;
 
-        void init(const HttpRequest &request);
+        void init(const HttpRequest &request, const std::string &baseDir);
 
         void initError(int errCode);
 
-        bool writeTo(TcpSocket &connection);
+        bool writeTo(const TcpSocket &connection);
+
+        bool hasDataToSend() const { return hasDataToSend_; }
+
+        bool sendDataTo(const TcpSocket &connection);
 
     private:
         const static std::map<int, std::string> StatusInfo_;

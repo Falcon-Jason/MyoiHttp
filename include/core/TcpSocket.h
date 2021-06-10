@@ -10,7 +10,7 @@
 
 namespace myoi {
 
-    enum class SocketType { INVALID_TYPE, LISTENER, CONNECTION };
+    enum class SocketType { INVALID_TYPE, LISTENER, CONNECTION};
 
     class TcpSocket {
     public:
@@ -38,9 +38,8 @@ namespace myoi {
 
         [[nodiscard]] TcpSocket accept() const;
 
-        friend class TcpListener;
         friend class Asio;
-        friend class AsioEvent;
+        friend class AsioBlock;
 
     };
 }

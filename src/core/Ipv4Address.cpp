@@ -18,7 +18,7 @@ namespace myoi {
 
     std::string Ipv4Address::address() const {
         char buffer[INET_ADDRSTRLEN];
-        auto ret = ::inet_ntop(AF_INET, unpack(), buffer, INET_ADDRSTRLEN);
+        auto ret = ::inet_ntop(AF_INET, &sin_addr, buffer, INET_ADDRSTRLEN);
         return ret == nullptr ? "" : buffer;
     }
 

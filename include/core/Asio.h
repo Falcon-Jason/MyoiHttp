@@ -7,33 +7,47 @@
 
 #include "TcpSocket.h"
 
+#include <cassert>
 #include <memory>
 #include <libaio.h>
 
 namespace myoi {
-    class AsioEvent : private iocb{
-    private:
-        char *buffer_{nullptr};
-        size_t byteRead_{0};
-        SocketType type_{SocketType::INVALID_TYPE};
-
-        AsioEvent() : iocb{} {}
-
+    class AsioBlock : private iocb {
     public:
-        ~AsioEvent();
-        [[nodiscard]] TcpSocket socket() const { return TcpSocket{aio_fildes, type_}; }
-        [[nodiscard]] char *buffer() const { return buffer_; }
-        [[nodiscard]] SocketType type() const { return type_; }
-        [[nodiscard]] size_t byteRead() const { return byteRead_; };
-        [[nodiscard]] size_t bufferSize() const;
+        AsioBlock() : iocb{} {}
+        ~AsioBlock() = default;
 
-        static AsioEvent *MakeRead(TcpSocket &connection, size_t size);
-        static AsioEvent *MakePoll(TcpSocket &listener);
+        [[nodiscard]] TcpSocket socket() const;
+        [[nodiscard]] SocketType type() const;
+        [[nodiscard]] size_t bufferSize() const;
+        char *buffer() { assert(type() == SocketType::CONNECTION); return (char *)u.c.buf; }
+
+        void initAsConnection(TcpSocket &socket, char *buffer, size_t size);
+        void initAsListener(TcpSocket &socket);
 
         friend class Asio;
+    };
 
+    class AsioEvent {
     private:
-        void clear();
+        AsioBlock *io_{nullptr};
+        size_t bytesRead_{0};
+
+        explicit AsioEvent(const io_event& event);
+        AsioEvent() = default;
+
+    public:
+        ~AsioEvent() = default;
+
+        [[nodiscard]] size_t bytesRead() const { return bytesRead_; }
+        [[nodiscard]] TcpSocket socket() const { return io_->socket(); }
+        [[nodiscard]] SocketType type() const { return io_->type(); }
+        [[nodiscard]] size_t bufferSize() const { return io_->bufferSize(); }
+        [[nodiscard]] char *buffer() { return io_->buffer(); }
+
+        bool operator==(nullptr_t null) const { return io_ == nullptr; }
+
+        friend class Asio;
     };
 
 
@@ -46,9 +60,13 @@ namespace myoi {
 
         bool init();
 
-        bool submit(AsioEvent *io) const;
+        bool destroy() const;
 
-        [[nodiscard]] AsioEvent *getEvent() const;
+        bool submit(AsioBlock *io) const;
+
+        bool cancel(AsioBlock *io) const;
+
+        [[nodiscard]] AsioEvent getEvent() const;
     };
 }
 

@@ -7,8 +7,12 @@ add_library(myoi_core
 add_library(myoi_http
         http/Http.cpp
         http/HttpRequestParser.cpp
-        http/HttpRequestHandler.cpp
+        server/HttpRequestHandler.cpp
         )
 
-add_executable(myoi main.cpp)
-target_link_libraries(myoi myoi_core myoi_http fmt aio pthread)
+add_executable(myoi_server
+        server/HttpServer.cpp
+        server/main.cpp)
+target_link_libraries(myoi_server myoi_http myoi_core fmt aio pthread)
+
+#add_executable(myoi main.cpp)

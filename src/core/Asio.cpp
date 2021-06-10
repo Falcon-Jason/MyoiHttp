@@ -3,6 +3,7 @@
 //
 
 #include "core/Asio.h"
+#include <unistd.h>
 
 namespace myoi {
     /*
@@ -23,37 +24,38 @@ namespace myoi {
         IOCB_CMD_PWRITEV = 8,
     };
 
-    AsioEvent::~AsioEvent() {
-        clear();
-    }
-
-    void AsioEvent::clear() {
-        if (buffer_ != nullptr) {
-            delete[] buffer_;
-            buffer_ = nullptr;
-        }
-    }
-
-    size_t AsioEvent::bufferSize() const {
-        if (type_ != SocketType::CONNECTION) { return 0; }
+    size_t AsioBlock::bufferSize() const {
+        if (type() != SocketType::CONNECTION) { return 0; }
         return u.c.nbytes;
     }
 
-    AsioEvent *AsioEvent::MakeRead(TcpSocket &connection, size_t size) {
-        auto *event = new AsioEvent{};
-        event->clear();
-        event->buffer_ = new char[size];
-        event->type_ = SocketType::CONNECTION;
-        io_prep_pread(static_cast<iocb *>(event), connection.socket_, event->buffer_, size, 0);
-        return event;
+    SocketType AsioBlock::type() const {
+        switch (aio_lio_opcode) {
+            case IOCB_CMD_PREAD:
+            case IOCB_CMD_PWRITE:
+                return SocketType::CONNECTION;
+            case IOCB_CMD_POLL:
+                return SocketType::LISTENER;
+            default:
+                return SocketType::INVALID_TYPE;
+        }
     }
 
-    AsioEvent *AsioEvent::MakePoll(TcpSocket &listener) {
-        auto *event = new AsioEvent{};
-        event->clear();
-        event->type_ = SocketType::LISTENER;
-        io_prep_poll(static_cast<iocb *>(event), listener.socket_, 1);
-        return event;
+    TcpSocket AsioBlock::socket() const {
+        return TcpSocket{aio_fildes, type()};
+    }
+
+    void AsioBlock::initAsConnection(TcpSocket &socket, char *buffer, size_t size) {
+        io_prep_pread(static_cast<iocb *>(this), socket.socket_, buffer, size, 0);
+    }
+
+    void AsioBlock::initAsListener(TcpSocket &socket) {
+        io_prep_poll(static_cast<iocb *>(this), socket.socket_, 1);
+    }
+
+    AsioEvent::AsioEvent(const io_event &event) {
+        this->io_ = (AsioBlock *)event.obj;
+        bytesRead_ = event.res;
     }
 
     bool Asio::init() {
@@ -61,18 +63,28 @@ namespace myoi {
         return (ret == 0);
     }
 
-    bool Asio::submit(AsioEvent *io) const {
+    bool Asio::destroy() const {
+        int ret = io_destroy(context);
+        return (ret == 0);
+    }
+
+    bool Asio::submit(AsioBlock *io) const {
         iocb *pio = static_cast<iocb *>(io);
         auto ret = ::io_submit(context, 1, &pio);
         return (ret == 1);
     }
 
-    AsioEvent * Asio::getEvent() const {
+    bool Asio::cancel(AsioBlock *io) const {
+        io_event event{};
+        iocb *pio = static_cast<iocb *>(io);
+        auto ret = ::io_cancel(context, pio, &event);
+        return (ret == 0);
+    }
+
+    AsioEvent Asio::getEvent() const {
         io_event event{};
         auto ret = io_getevents(context, 1, 1, &event, nullptr);
-        if (ret != 1) { return nullptr; }
-        AsioEvent *result = (AsioEvent *)(event.obj);
-        result->byteRead_ = event.res;
-        return result;
+        if (ret != 1) { return AsioEvent{}; }
+        return AsioEvent{event};
     }
 }

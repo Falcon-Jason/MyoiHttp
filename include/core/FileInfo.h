@@ -21,7 +21,7 @@ namespace myoi {
 
         explicit FileInfo(const char *filename);
 
-        void resetFile(const char *filename);
+        void setFile(const char *filename);
 
         [[nodiscard]] bool exists() const;
 

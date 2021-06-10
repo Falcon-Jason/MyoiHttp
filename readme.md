@@ -10,9 +10,12 @@
 
 ## 更新日志
 
-### 2021.06.03更新
+### 2021.06.21更新
 
 * 删除了BufferedIo，改用无缓冲的I/O操作，并重新实现了HttpRequestParser以适应无缓冲的I/O；
+* 使用`libaio`实现了异步IO，并采用了类似`Proactor`的设计模式重新实现了HttpServer；
+* 删除了TcpListener和TcpConnection，统一使用TcpSocket代替，以便于Asio使用；
+* 目前存在的问题：不能正常退出程序，只能使用ctrl-c强制退出（正在修复）；
 
 ## 环境与部署
 

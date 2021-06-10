@@ -21,10 +21,10 @@ namespace myoi {
     const char *defaultMime{"text/plain"};
 
     FileInfo::FileInfo(const char *filename) {
-        resetFile(filename);
+        setFile(filename);
     }
 
-    void FileInfo::resetFile(const char *filename) {
+    void FileInfo::setFile(const char *filename) {
         fileName_ = filename;
         auto ret = ::stat(filename, &fileStat_);
         exists_ = (ret == 0);
