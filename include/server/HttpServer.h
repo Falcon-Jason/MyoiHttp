@@ -33,8 +33,7 @@ namespace myoi {
         AsioBlock listenerBlock{};
         Ipv4Address hostAddress{};
         std::string baseDir{};
-        AsioBlock stdinBlock{};
-        char stdinBuffer[128];
+        int terminate{0};
 
         void HandleClient(HttpConnection **pConnection);
         void HandleNewConnection();
@@ -58,6 +57,8 @@ namespace myoi {
         ~HttpServer() noexcept;
 
         int exec();
+
+        void term();
 
     };
 }

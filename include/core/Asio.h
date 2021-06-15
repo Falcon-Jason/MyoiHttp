@@ -60,7 +60,7 @@ namespace myoi {
 
         bool init();
 
-        bool destroy() const;
+        [[nodiscard]] bool destroy() const;
 
         bool submit(AsioBlock *io) const;
 

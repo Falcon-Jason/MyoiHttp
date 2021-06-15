@@ -15,7 +15,7 @@ namespace myoi {
     int HttpServer::exec() {
         init();
 
-        while (true) {
+        while (terminate == 0) {
             auto event = asio.getEvent();
             if (event == nullptr || event.type() == SocketType::INVALID_TYPE) { continue; }
 
@@ -27,9 +27,22 @@ namespace myoi {
                 HandleNewConnection();
             } else {
                 fmt::print(stderr, "[ERROR] Invalid Connection Type\n");
-                return EXIT_FAILURE;
             }
         }
+
+        for(auto & connection : connections) {
+            if (connection != nullptr) {
+                asio.cancel(&connection->io);
+                delete[] connection;
+                connection = nullptr;
+            }
+        }
+
+        return EXIT_SUCCESS;
+    }
+
+    void HttpServer::term() {
+        terminate = 1;
     }
 
     void HttpServer::init() {
