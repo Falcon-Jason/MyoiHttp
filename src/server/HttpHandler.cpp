@@ -11,7 +11,8 @@
 namespace myoi {
     using std::string;
 
-    void HttpHandler::handle(TcpSocket *connection, HttpRequestParser *parser, const CallBack& callback) {
+    void HttpHandler::handle(TcpSocket *connection, HttpRequestParser *parser, const CallBack* pCallback) {
+        auto &callback = *pCallback;
         auto n = connection->tryRead(buffer, BUFFER_SIZE - 1);
         if (n <= 0) {
             return callback(connection, false);

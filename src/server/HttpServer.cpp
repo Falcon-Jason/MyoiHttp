@@ -22,8 +22,7 @@ namespace myoi {
             return false;
         }
 
-        Ipv4Address listenerAddress = listener.hostAddress();
-        log.info("Listening to {}:{}", listenerAddress.address(), listenerAddress.port());
+        log.info("Listening to {}", listener.hostAddress().toString());
 
         epoll.addEvent(&listener);
         terminate = 0;
@@ -43,15 +42,15 @@ namespace myoi {
             auto socket = epoll.wait();
             if (socket == nullptr || !socket->isOpen()) { continue; }
 
-            Ipv4Address connAddr = socket->hostAddress();
-            log.info("Connected to {}:{}", connAddr.address(), connAddr.port());
+            log.info("Connected to {}", socket->hostAddress().toString());
 
             switch (socket->type()) {
                 case SocketType::LISTENER:
+                    log.info("Handling Listener");
                     handleListener(socket);
                     break;
                 case SocketType::CONNECTION:
-                    log.info("Handling {}:{}", connAddr.address(), connAddr.port());
+                    log.info("Handling Connection {}", socket->peerAddress().toString());
                     handleConnection(socket);
                     break;
                 case SocketType::INVALID_TYPE:
@@ -68,18 +67,11 @@ namespace myoi {
     void HttpServer::handleListener(TcpSocket *socket) {
         auto newConn = socket->accept();
         addConnection(newConn);
-//        epoll.addEvent(socket);
+        epoll.resetEvent(socket);
     }
 
     void HttpServer::handleConnection(TcpSocket *socket) {
-        auto callback = [this](TcpSocket *socket, bool keepAlive) {
-            if (keepAlive) {
-                epoll.resetEvent(socket);
-            } else {
-                removeConnection(socket);
-            }
-        };
-        return controller.handleConnection(socket, parsers.at(socket->index()).get(), callback);
+        return controller.handleConnection(socket, parsers.at(socket->index()).get(), &callback);
     }
 
     void HttpServer::addConnection(const TcpSocket &socket) {

@@ -9,7 +9,7 @@
 #include "server/LogServer.h"
 #include "util/TcpSocket.h"
 #include "util/EpollSet.h"
-#include "util/HttpRequestParser.h"
+#include "HttpRequestParser.h"
 #include <unordered_map>
 #include <memory>
 namespace myoi {
@@ -24,7 +24,6 @@ namespace myoi {
         std::unordered_map<int, std::unique_ptr<HttpRequestParser>> parsers{};
         std::unordered_map<int, std::unique_ptr<TcpSocket>> connections{};
         HttpHandlerController controller;
-
 
     public:
 
@@ -45,7 +44,13 @@ namespace myoi {
 
         void removeConnection(TcpSocket *socket);
 
-
+        HttpHandler::CallBack callback = [this](TcpSocket *socket, bool keepAlive) {
+            if (keepAlive) {
+                epoll.resetEvent(socket);
+            } else {
+                removeConnection(socket);
+            }
+        };
 
 
     };

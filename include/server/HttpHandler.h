@@ -6,7 +6,7 @@
 #define NETWORK_HTTPHANDLER_H
 
 #include <util/FileInfo.h>
-#include "util/HttpRequestParser.h"
+#include "HttpRequestParser.h"
 #include "util/TcpSocket.h"
 #include <functional>
 
@@ -20,13 +20,11 @@ namespace myoi {
     private:
         std::string baseDir;
         char buffer[BUFFER_SIZE]{};
-        const static std::map<int, std::string> StatusInfo;
 
     public:
         explicit HttpHandler(const char *baseDir) : baseDir{baseDir} {}
 
-        void handle(TcpSocket *connection, HttpRequestParser *parser, const CallBack& callback);
-
+        void handle(TcpSocket *connection, HttpRequestParser *parser, const CallBack* callback);
 
     private:
 
