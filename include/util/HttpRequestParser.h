@@ -5,7 +5,7 @@
 #ifndef MYOIHTTP_HTTPREQUESTPARSER_H
 #define MYOIHTTP_HTTPREQUESTPARSER_H
 
-#include "http/HttpRequest.h"
+#include "util/HttpUtil.h"
 #include <string>
 
 namespace myoi {

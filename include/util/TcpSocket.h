@@ -5,7 +5,7 @@
 #ifndef MYOIHTTP_TCPCONNECTION_H
 #define MYOIHTTP_TCPCONNECTION_H
 
-#include "core/Ipv4Address.h"
+#include "util/Ipv4Address.h"
 #include <memory>
 
 namespace myoi {
@@ -15,9 +15,9 @@ namespace myoi {
     class TcpSocket {
     public:
     private:
-        Socket socket_{-1};
+        int fildes_{-1};
         SocketType type_{SocketType::INVALID_TYPE};
-        TcpSocket(Socket socket, SocketType type) : socket_{socket}, type_{type} {}
+        TcpSocket(int socket, SocketType type) : fildes_{socket}, type_{type} {}
 
     public:
         TcpSocket() = default;
@@ -27,19 +27,19 @@ namespace myoi {
         bool listen(const Ipv4Address &address);
         bool close();
 
-        [[nodiscard]] bool isOpen() const { return socket_ >= 0; }
-        [[nodiscard]] int index() const { return socket_; }
+        [[nodiscard]] bool isOpen() const { return fildes_ >= 0; }
+        [[nodiscard]] int index() const { return fildes_; }
+        [[nodiscard]] SocketType type() const { return type_; }
 
-        bool hostAddress(Ipv4Address &address) const;
-        bool peerAddress(Ipv4Address &address) const;
+        [[nodiscard]] Ipv4Address hostAddress() const;
+        [[nodiscard]] Ipv4Address peerAddress() const;
 
         ssize_t tryRead(char *buffer, size_t size) const;
         ssize_t tryWrite(const char *buffer, size_t size) const;
 
         [[nodiscard]] TcpSocket accept() const;
 
-        friend class Asio;
-        friend class AsioBlock;
+        bool operator==(const TcpSocket &rhs) const { return fildes_ == rhs.fildes_; }
 
     };
 }

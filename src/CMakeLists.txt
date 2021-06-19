@@ -1,17 +1,20 @@
 add_library(myoi_core
-        core/Ipv4Address.cpp
-        core/TcpSocket.cpp
-        core/FileInfo.cpp
-        core/Asio.cpp)
+        util/TcpSocket.cpp
+        util/FileInfo.cpp
+        util/EpollSet.cpp
+        util/Ipv4Address.cpp
+        )
+target_link_libraries(myoi_core fmt)
 
 add_library(myoi_http
-        http/Http.cpp
-        http/HttpRequestParser.cpp
-        server/HttpRequestHandler.cpp
+        util/HttpUtil.cpp
+        util/HttpRequestParser.cpp
         )
 
 add_executable(myoi_server
         server/HttpServer.cpp
+        server/HttpHandler.cpp
+        server/HttpHandlerController.cpp
         server/main.cpp)
 target_link_libraries(myoi_server myoi_http myoi_core fmt aio pthread)
 

@@ -2,8 +2,9 @@
 // Created by jason on 2021/4/12.
 //
 
-#include "core/Ipv4Address.h"
+#include "util/Ipv4Address.h"
 #include <cstring>
+#include <fmt/format.h>
 
 namespace myoi {
     Ipv4Address::Ipv4Address() : sockaddr_in{} {
@@ -14,6 +15,11 @@ namespace myoi {
     Ipv4Address::Ipv4Address(const char *address, uint16_t port) : Ipv4Address{} {
         setPort(port);
         setAddress(address);
+    }
+
+
+    std::string Ipv4Address::toString() const {
+        return fmt::format("{}:{}", address(), port());
     }
 
     std::string Ipv4Address::address() const {

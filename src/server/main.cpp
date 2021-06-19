@@ -2,9 +2,11 @@
 // Created by jason on 26/4/21.
 //
 
-#include "server/HttpServer.h"
+#include <unistd.h>
+#include <csignal>
 #include <memory>
 #include <fmt/format.h>
+#include "server/HttpServer.h"
 
 using namespace myoi;
 
@@ -21,4 +23,9 @@ int main(int argc, char **argv) {
     signal(SIGTERM, [](int sig) { server->term(); });
 
     return server->exec();
+
+//    std::function<void()> f = nullptr;
+//    f();
+
+    return 0;
 }

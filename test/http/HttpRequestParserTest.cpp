@@ -4,7 +4,7 @@
 
 #include <gtest/gtest.h>
 #include <fmt/format.h>
-#include "http/HttpRequestParser.h"
+#include "core/HttpRequestParser.h"
 
 #define LONG_URI "http://www.baidu.com/index.html?id=123456"
 

@@ -1,69 +1,54 @@
 //
-// Created by jason on 10/6/21.
+// Created by jason on 16/6/21.
 //
 
 #ifndef NETWORK_HTTPSERVER_H
 #define NETWORK_HTTPSERVER_H
 
-
-#include <utility>
-
-#include "core/Ipv4Address.h"
-#include "http/HttpRequestParser.h"
-#include "core/Asio.h"
-
+#include "server/HttpHandlerController.h"
+#include "server/LogServer.h"
+#include "util/TcpSocket.h"
+#include "util/EpollSet.h"
+#include "util/HttpRequestParser.h"
+#include <unordered_map>
+#include <memory>
 namespace myoi {
-    constexpr size_t BUFFER_SIZE = 1024;
-    constexpr size_t CONNECTION_COUNT = 64;
-
-    struct HttpConnection {
-        AsioBlock io;
-        HttpRequestParser parser;
-        char ioBuffer[BUFFER_SIZE];
-
-        HttpConnection() : io{}, parser{}, ioBuffer{} {};
-        ~HttpConnection() = default;
-    };
 
     class HttpServer {
     private:
-        Asio asio{};
-        HttpConnection *connections[CONNECTION_COUNT]{nullptr};
+        int terminate{1};
+        Ipv4Address address{};
         TcpSocket listener{};
-        AsioBlock listenerBlock{};
-        Ipv4Address hostAddress{};
-        std::string baseDir{};
-        int terminate{0};
+        EpollSet epoll{};
+        LogServer log{stdout};
+        std::unordered_map<int, std::unique_ptr<HttpRequestParser>> parsers{};
+        std::unordered_map<int, std::unique_ptr<TcpSocket>> connections{};
+        HttpHandlerController controller;
 
-        void HandleClient(HttpConnection **pConnection);
-        void HandleNewConnection();
-//      void HandleConsole();
-
-        void init();
-
-        static void logNewConnection(const TcpSocket &socket);
-        static void logCloseConnection(const TcpSocket &socket);
-        static void logStartServer(const TcpSocket &socket);
 
     public:
-        HttpServer(const char *address, uint16_t port, const std::string &basedir)
-            : HttpServer{Ipv4Address{address, port}, basedir} {}
 
-        explicit HttpServer(const Ipv4Address &address, std::string basedir)
-            : hostAddress{address}, baseDir{std::move(basedir)} {
-            if (baseDir.back() == '/') {baseDir.pop_back();}
-        }
-
-        ~HttpServer() noexcept;
+        HttpServer(const char *address, uint16_t port, const char *baseDir) : address{address, port}, controller{baseDir} {}
 
         int exec();
 
         void term();
 
+    private:
+        bool init();
+
+        void handleListener(TcpSocket *socket);
+
+        void handleConnection(TcpSocket *socket);
+
+        void addConnection(const TcpSocket &socket);
+
+        void removeConnection(TcpSocket *socket);
+
+
+
+
     };
 }
-
-
-
 
 #endif //NETWORK_HTTPSERVER_H

@@ -1,134 +1,101 @@
 //
-// Created by jason on 10/6/21.
+// Created by jason on 16/6/21.
 //
 
 #include "server/HttpServer.h"
-#include "server/HttpRequestHandler.h"
-#include <unistd.h>
-#include <fmt/format.h>
-#include <cassert>
-#include <thread>
-#include <iostream>
+
+#include <memory>
+
 
 namespace myoi {
-    using std::thread;
-    int HttpServer::exec() {
-        init();
-
-        while (terminate == 0) {
-            auto event = asio.getEvent();
-            if (event == nullptr || event.type() == SocketType::INVALID_TYPE) { continue; }
-
-            if (event.type() == SocketType::CONNECTION) {
-                event.buffer()[event.bytesRead()] = '\0';
-                thread th{&HttpServer::HandleClient, this, &connections[event.socket().index()]};
-                th.detach();
-            } else if (event.type() == SocketType::LISTENER) {
-                HandleNewConnection();
-            } else {
-                fmt::print(stderr, "[ERROR] Invalid Connection Type\n");
-            }
+    bool HttpServer::init() {
+        bool success;
+        success = epoll.init();
+        if (!success) {
+            log.error("Epoll Initialize Failed");
+            return false;
         }
 
-        for(auto & connection : connections) {
-            if (connection != nullptr) {
-                asio.cancel(&connection->io);
-                delete[] connection;
-                connection = nullptr;
-            }
+        success = listener.listen(address);
+        if (!success) {
+            log.error("Bind or Listen Failed");
+            return false;
         }
 
-        return EXIT_SUCCESS;
+        Ipv4Address listenerAddress = listener.hostAddress();
+        log.info("Listening to {}:{}", listenerAddress.address(), listenerAddress.port());
+
+        epoll.addEvent(&listener);
+        terminate = 0;
+        return true;
     }
 
     void HttpServer::term() {
         terminate = 1;
     }
 
-    void HttpServer::init() {
-        bool success;
+    int HttpServer::exec() {
+        if (!init()) { return EXIT_FAILURE; }
 
-        success = asio.init();
-        assert(success);
-        success = listener.listen(hostAddress);
-        assert(success);
-        success = listener.hostAddress(hostAddress);
-        assert(success);
-        listenerBlock.initAsListener(listener);
-        success = asio.submit(&listenerBlock);
-        assert(success);
+        log.info("Initialization Finished");
 
-        logStartServer(listener);
-    }
+        while (!terminate) {
+            auto socket = epoll.wait();
+            if (socket == nullptr || !socket->isOpen()) { continue; }
 
-    void HttpServer::HandleClient(HttpConnection **pConnection) {
-        auto &conn = *pConnection;
-        auto &parser = conn->parser;
-        HttpRequestHandler handler{};
+            Ipv4Address connAddr = socket->hostAddress();
+            log.info("Connected to {}:{}", connAddr.address(), connAddr.port());
 
-        parser.parse(conn->ioBuffer);
-        if (parser.open()) {
-            asio.submit(&conn->io);
-            return;
-        }
-
-        if (parser.failure()) {
-            handler.initError(400);
-        } else if (parser.success()) {
-            handler.init(parser.request(), baseDir);
-        }
-
-        handler.writeTo(conn->io.socket());
-        if (handler.hasDataToSend()) {
-            handler.sendDataTo(conn->io.socket());
-        }
-
-        logCloseConnection(conn->io.socket());
-        conn->io.socket().close();
-        delete conn;
-        *pConnection = nullptr;
-    }
-
-    void HttpServer::HandleNewConnection() {
-        auto acceptor = listener.accept();
-        if (!acceptor.isOpen()) { return; }
-        logNewConnection(acceptor);
-
-        int index = acceptor.index();
-        assert(connections[index] == nullptr);
-        auto newConn = connections[index] = new HttpConnection{};
-        newConn->io.initAsConnection(acceptor, newConn->ioBuffer, BUFFER_SIZE);
-        asio.submit(&newConn->io);
-        asio.submit(&listenerBlock);
-    }
-
-    void HttpServer::logCloseConnection(const TcpSocket &socket) {
-        Ipv4Address address{};
-        socket.peerAddress(address);
-        fmt::print(stdout, "[INFO] Closed Connection to {}:{}\n", address.address(), address.port());
-    }
-
-    void HttpServer::logNewConnection(const TcpSocket &socket) {
-        Ipv4Address address{};
-        socket.peerAddress(address);
-        fmt::print(stdout, "[INFO] New Connection from {}:{}\n", address.address(), address.port());
-    }
-
-    void HttpServer::logStartServer(const TcpSocket &socket) {
-        Ipv4Address address{};
-        socket.hostAddress(address);
-        fmt::print(stdout, "[INFO] Started server at localhost:{}\n", address.port());
-    }
-
-    HttpServer::~HttpServer() noexcept {
-        for (auto & connection : connections) {
-            if (connection != nullptr) {
-                asio.cancel(&connection->io);
-                delete connection;
-                connection = nullptr;
+            switch (socket->type()) {
+                case SocketType::LISTENER:
+                    handleListener(socket);
+                    break;
+                case SocketType::CONNECTION:
+                    log.info("Handling {}:{}", connAddr.address(), connAddr.port());
+                    handleConnection(socket);
+                    break;
+                case SocketType::INVALID_TYPE:
+                    log.error("Epoll got an invalid connection {}", socket->index());
+                    break;
             }
         }
 
-        asio.destroy();
+        controller.exit();
+        parsers.clear();
+        return EXIT_SUCCESS;
+    }
+
+    void HttpServer::handleListener(TcpSocket *socket) {
+        auto newConn = socket->accept();
+        addConnection(newConn);
+//        epoll.addEvent(socket);
+    }
+
+    void HttpServer::handleConnection(TcpSocket *socket) {
+        auto callback = [this](TcpSocket *socket, bool keepAlive) {
+            if (keepAlive) {
+                epoll.resetEvent(socket);
+            } else {
+                removeConnection(socket);
+            }
+        };
+        return controller.handleConnection(socket, parsers.at(socket->index()).get(), callback);
+    }
+
+    void HttpServer::addConnection(const TcpSocket &socket) {
+        parsers[socket.index()] = std::make_unique<HttpRequestParser>();
+        connections[socket.index()] =std::make_unique<TcpSocket>(socket);
+        epoll.addEvent(connections[socket.index()].get());
+    }
+
+    void HttpServer::removeConnection(TcpSocket *socket) {
+        log.info("Closed Connection to {}", socket->hostAddress().toString());
+        socket->close();
+        if (parsers.count(socket->index())) { parsers.erase(socket->index()); }
+        if (connections.count(socket->index())) { connections.erase(socket->index()); }
+
+        epoll.removeEvent(socket);
+
+
     }
 }

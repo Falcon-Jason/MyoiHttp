@@ -2,10 +2,10 @@
 // Created by jason on 30/5/21.
 //
 
-#include "http/HttpRequestParser.h"
+#include "util/HttpRequestParser.h"
 
 namespace myoi {
-    constexpr int BUFFER_SIZE = 4096;
+    constexpr int BUFFER_SIZE = 64;
 
     enum class HttpRequestParser::Status {
         SUCCESS,
@@ -89,13 +89,12 @@ namespace myoi {
         return false;
     }
 
-#define FROM_STRING(...) if(!FromString(__VA_ARGS__)) { return false; }
-
     bool HttpRequestParser::onParsingMethod(char ch) {
         if (isupper(ch)) {
             buffer_.push_back(ch);
         } else if (ch == ' ') {
-            FROM_STRING(buffer_.c_str(), request_.method_);
+            bool success = HttpMethod::parse(request_.method_, buffer_.c_str());
+            if (!success) { return false; }
             go(Status::OPEN_PARSED_METHOD);
         } else {
             return false;
@@ -123,7 +122,8 @@ namespace myoi {
         if (isalnum(ch) || ch == '/' || ch == '.') {
             buffer_.push_back(ch);
         } else if (ch == '\r') {
-            FROM_STRING(buffer_.c_str(), request_.version_);
+            bool success = HttpVersion::parse(request_.version_, buffer_.c_str());
+            if (!success) { return false; }
             go(Status::OPEN_PARSED_VERSION);
         } else {
             return false;
@@ -235,6 +235,4 @@ namespace myoi {
         buffer_.clear();
         status_ = status;
     }
-
-#undef FROM_STRING
 }

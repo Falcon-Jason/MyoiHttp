@@ -23,13 +23,15 @@ namespace myoi {
 
         [[nodiscard]] std::string address() const;
 
+        [[nodiscard]] std::string toString() const;
+
         [[nodiscard]] uint16_t port() const;
 
         [[nodiscard]]constexpr sockaddr_in *unpack() { return static_cast<sockaddr_in *>(this); }
 
         [[nodiscard]] constexpr const sockaddr_in *unpack() const { return static_cast<const sockaddr_in *>(this); }
 
-        [[nodiscard]] constexpr auto size() const { return sizeof(sockaddr_in); }
+        [[nodiscard]] constexpr auto size() const { return sizeof(*this); }
 
         bool setAddress(const char *address);
 
