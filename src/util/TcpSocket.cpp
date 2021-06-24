@@ -1,16 +1,19 @@
-//
-// Created by jason on 2021/4/12.
-//
+/**
+ * @file TcpSocket.cpp
+ * @author Jason Cheung
+ * @date 2021.04.12
+ * @brief The class encapsulated basic Socket APIs (read/write, connect, bind/listen, etc.).
+ */
 
 #include "util/TcpSocket.h"
-#include "util/Ipv4Address.h"
+
 #include <iostream>
 #include <cassert>
 #include <cerrno>
 #include <cstring>
-#include <unistd.h>
-#include <arpa/inet.h>
 
+#include <arpa/inet.h>
+#include <unistd.h>
 #include <fcntl.h>
 
 namespace myoi {
@@ -20,8 +23,8 @@ namespace myoi {
         return (ret == 0);
     }
 
-    bool TcpSocket::connect(const Ipv4Address &address) {
-        type_ = SocketType::CONNECTION;
+    bool TcpSocket::connect(const InetAddress &address) {
+        type_ = Type::CONNECTION;
         fildes_ = ::socket(AF_INET, SOCK_STREAM, 0);
         if (fildes_ < 0) { return false; }
 
@@ -31,7 +34,7 @@ namespace myoi {
         return true;
     }
 
-    bool TcpSocket::listen(const Ipv4Address &address) {
+    bool TcpSocket::listen(const InetAddress &address) {
         using std::cerr, std::endl;
         fildes_ = ::socket(AF_INET, SOCK_STREAM, 0);
         if (fildes_ < 0) {
@@ -54,45 +57,45 @@ namespace myoi {
             close();
             return false;
         }
-        type_ = SocketType::LISTENER;
+        type_ = Type::LISTENER;
         return true;
     }
 
-    Ipv4Address TcpSocket::hostAddress() const {
+    InetAddress TcpSocket::hostAddress() const {
         assert(isOpen());
 
-        Ipv4Address address{};
+        InetAddress address{};
         socklen_t length = address.size();
         auto ret = ::getsockname(fildes_, (sockaddr *) address.unpack(), &length);
-        if (ret != 0) { return Ipv4Address{}; };
+        if (ret != 0) { return InetAddress{}; };
         return address;
     }
 
-    Ipv4Address TcpSocket::peerAddress() const {
+    InetAddress TcpSocket::peerAddress() const {
         assert(isOpen());
 
-        Ipv4Address address{};
+        InetAddress address{};
         socklen_t length = address.size();
         auto ret = ::getpeername(fildes_, (sockaddr *) address.unpack(), &length);
-        if (ret != 0) { return Ipv4Address{}; };
+        if (ret != 0) { return InetAddress{}; };
         return address;
     }
 
-    ssize_t TcpSocket::tryRead(char *buffer, size_t size) const {
-        assert(isOpen() && type_ == SocketType::CONNECTION);
+    ssize_t TcpSocket::read(char *buffer, size_t size) const {
+        assert(isOpen() && type_ == Type::CONNECTION);
         return ::read(fildes_, buffer, size);
     }
 
-    ssize_t TcpSocket::tryWrite(const char *buffer, size_t size) const {
-        assert(isOpen() && type_ == SocketType::CONNECTION);
+    ssize_t TcpSocket::write(const char *buffer, size_t size) const {
+        assert(isOpen() && type_ == Type::CONNECTION);
         return ::write(fildes_, buffer, size);
     }
 
     TcpSocket TcpSocket::accept() const {
-        assert(isOpen() && type_ == SocketType::LISTENER);
+        assert(isOpen() && type_ == Type::LISTENER);
         TcpSocket connection{};
         connection.fildes_ = ::accept(fildes_, nullptr, nullptr);
-        connection.type_ = SocketType::CONNECTION;
+        connection.type_ = Type::CONNECTION;
         return connection;
     }
 }

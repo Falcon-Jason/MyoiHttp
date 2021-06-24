@@ -1,11 +1,13 @@
-//
-// Created by jason on 30/5/21.
-//
+/**
+ * @file HttpRequestParser.h
+ * @author Jason Cheung
+ * @date 2021.05.30
+ */
 
-#ifndef MYOIHTTP_HTTPREQUESTPARSER_H
-#define MYOIHTTP_HTTPREQUESTPARSER_H
+#ifndef MYOI_HTTPREQUESTPARSER_H
+#define MYOI_HTTPREQUESTPARSER_H
 
-#include "util/HttpUtil.h"
+#include "HttpUtil.h"
 #include <string>
 
 namespace myoi {
@@ -28,7 +30,7 @@ namespace myoi {
         [[nodiscard]] bool failure() const;
         [[nodiscard]] bool open() const;
 
-        HttpRequest &request() { return request_; }
+        HttpRequest *datum() { return success() ? &request_ : nullptr; }
         [[nodiscard]] const HttpRequest &request() const { return request_; }
 
     private:
@@ -52,4 +54,4 @@ namespace myoi {
 }
 
 
-#endif //MYOIHTTP_HTTPREQUESTPARSER_H
+#endif //MYOI_HTTPREQUESTPARSER_H

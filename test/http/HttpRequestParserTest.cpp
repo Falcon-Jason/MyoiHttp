@@ -1,10 +1,12 @@
-//
-// Created by jason on 30/5/21.
-//
+/**
+ * @file HttpRequestParserTest.cpp
+ * @author Jason Cheung
+ * @date 2021.05.30
+ */
 
 #include <gtest/gtest.h>
 #include <fmt/format.h>
-#include "core/HttpRequestParser.h"
+#include "http/HttpRequestParser.h"
 
 #define LONG_URI "http://www.baidu.com/index.html?id=123456"
 
@@ -77,4 +79,9 @@ TEST(TestHttpRequestParser, ParseChromeRequest) {
         ASSERT_EQ(i->first, j->first);
         ASSERT_EQ(i->second, j->second);
     }
+}
+
+int main() {
+    testing::InitGoogleTest();
+    return RUN_ALL_TESTS();
 }

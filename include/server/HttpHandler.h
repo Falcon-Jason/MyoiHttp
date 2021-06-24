@@ -1,41 +1,56 @@
-//
-// Created by jason on 16/6/21.
-//
+/**
+ * @file HttpHandler.h
+ * @author Jason Cheung
+ * @date 2021.06.25
+ */
 
-#ifndef NETWORK_HTTPHANDLER_H
-#define NETWORK_HTTPHANDLER_H
+#ifndef MYOI_HTTPHANDLER_H
+#define MYOI_HTTPHANDLER_H
 
-#include <util/FileInfo.h>
-#include "HttpRequestParser.h"
-#include "util/TcpSocket.h"
-#include <functional>
+#include "event/EventHandler.h"
+#include "event/EventReactor.h"
+#include "HttpEvent.h"
+#include "HttpProcessor.h"
+
+#include <memory>
+#include <unordered_map>
+#include <string>
+#include <mutex>
 
 namespace myoi {
-    constexpr int BUFFER_SIZE = 1024;
-
-    class HttpHandler {
+    class HttpHandler : public EventHandler {
     public:
-        using CallBack = std::function<void(TcpSocket *, bool)>;
+        constexpr static int BUFFER_SIZE = 1024;
+        using EventSet = std::unordered_map<NativeHandle, std::unique_ptr<HttpEvent>>;
 
     private:
-        std::string baseDir;
-        char buffer[BUFFER_SIZE]{};
+        EventSet events_;
+        std::mutex eventsMutex;
+        std::string baseDir_;
 
     public:
-        explicit HttpHandler(const char *baseDir) : baseDir{baseDir} {}
+        explicit HttpHandler(const char *baseDir) noexcept
+            : events_{}, eventsMutex{}, baseDir_{baseDir} {}
 
-        void handle(TcpSocket *connection, HttpRequestParser *parser, const CallBack* callback);
+        void handle(Event *e, EventReactor *reactor) override;
+
+        bool init(const InetAddress &address, EventReactor *reactor);
+
+        const std::string &baseDir() const { return baseDir_; }
 
     private:
+        void listen(HttpEvent *event, EventReactor *reactor);
 
-        void handleResponse(const HttpRequest *request, const TcpSocket *connection);
+        void process(HttpEvent *event, EventReactor *reactor);
 
-        void handleErrorResponse(int errCode, const TcpSocket *connection);
+        void registerEvent(TcpSocket socket, EventReactor *reactor);
 
-        bool sendData(const FileInfo& file, const TcpSocket *connection);
+        void removeEvent(HttpEvent *event, EventReactor *reactor);
 
-        bool sendResponse(const HttpResponse *response, const TcpSocket *connection);
+        friend class HttpProcessor;
     };
 }
 
-#endif //NETWORK_HTTPHANDLER_H
+
+
+#endif //MYOI_HTTPHANDLER_H

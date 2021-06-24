@@ -1,13 +1,16 @@
-//
-// Created by jason on 3/6/21.
-//
+/**
+ * @file FileInfo.h
+ * @author Jason Cheung
+ * @date 2021.06.03
+ * @brief The class encapsulated file information APIs (`stat/fstat`).
+ */
 
-#ifndef MYOIHTTP_FILEINFO_H
-#define MYOIHTTP_FILEINFO_H
+#ifndef MYOI_FILEINFO_H
+#define MYOI_FILEINFO_H
+
 
 #include <sys/stat.h>
 #include <string>
-
 
 namespace myoi {
     class FileInfo {
@@ -35,4 +38,5 @@ namespace myoi {
     };
 }
 
-#endif //MYOIHTTP_FILEINFO_H
+
+#endif //MYOI_FILEINFO_H

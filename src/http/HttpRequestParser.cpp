@@ -1,8 +1,10 @@
-//
-// Created by jason on 30/5/21.
-//
+/**
+ * @file HttpRequestParser.cpp
+ * @author Jason Cheung
+ * @date 2021.05.30
+ */
 
-#include "server/HttpRequestParser.h"
+#include "http/HttpRequestParser.h"
 
 namespace myoi {
     constexpr int BUFFER_SIZE = 64;

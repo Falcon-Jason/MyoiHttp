@@ -1,31 +1,33 @@
-//
-// Created by jason on 26/4/21.
-//
+/**
+ * @file main.cpp
+ * @author Jason Cheung
+ * @date 2021.04.26
+ */
 
-#include <unistd.h>
-#include <csignal>
+#include "server/HttpHandler.h"
+#include "event/EventReactor.h"
+
 #include <memory>
-#include <fmt/format.h>
-#include "server/HttpServer.h"
+#include <csignal>
 
-using namespace myoi;
+std::unique_ptr<myoi::HttpHandler> handler;
+std::unique_ptr<myoi::EventReactor> reactor;
 
-std::unique_ptr<HttpServer> server;
+void term(int signal) { reactor->term(); }
 
 int main(int argc, char **argv) {
-    if (argc != 4) {
-        fmt::print(stderr, "[ERROR] INVALID ARGUMENTS\n");
-        return EXIT_FAILURE;
-    }
-    server = std::make_unique<HttpServer>(
-        argv[1], (uint16_t)atoi(argv[2]), argv[3]);
+    reactor = std::make_unique<myoi::EventReactor>();
+    handler = std::make_unique<myoi::HttpHandler>("/home/jason/Documents/MyoiHttp");
 
-    signal(SIGTERM, [](int sig) { server->term(); });
+    bool success = reactor->open(64);
+    if (!success) { return EXIT_FAILURE; }
 
-    return server->exec();
+    success = handler->init(
+            myoi::InetAddress{"127.0.0.1", 8080},
+            reactor.get());
+    if (!success) { return EXIT_FAILURE; }
 
-//    std::function<void()> f = nullptr;
-//    f();
+    signal(SIGTERM, term);
 
-    return 0;
+    return reactor->exec();
 }

@@ -10,6 +10,11 @@
 
 ## 更新日志
 
+### 2021.06.25更新
+
+* 重新设计了整体结构，将与`epoll`相关的操作独立出来，形成`event`模块；
+* 基于`event`模块重新实现了HttpHandler(原HttpHandlerController)和HttpProcessor(原HttpHandler);
+
 ### 2021.06.19更新
 
 * 放弃了`libaio`方案，改用`Epoll`和`Reactor`设计模式实现；

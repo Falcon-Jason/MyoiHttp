@@ -1,15 +1,19 @@
-//
-// Created by jason on 28/5/21.
-//
-#include "util/HttpUtil.h"
+/**
+ * @file HttpUtil.cpp
+ * @author Jason Cheung
+ * @date 2021.06.03
+ */
+
+#include "http/HttpUtil.h"
+
 #include <cstring>
 #include <fmt/format.h>
-namespace myoi {
 
+namespace myoi {
     HttpVersion
-        HttpVersion::HTTP_0_9{"HTTP/0.9"},
-        HttpVersion::HTTP_1_0{"HTTP/1.0"},
-        HttpVersion::HTTP_1_1{"HTTP/1.1"};
+            HttpVersion::HTTP_0_9{"HTTP/0.9"},
+            HttpVersion::HTTP_1_0{"HTTP/1.0"},
+            HttpVersion::HTTP_1_1{"HTTP/1.1"};
 
     bool HttpVersion::parse(HttpVersion &version, const char *str) {
         if (strcmp(str, HTTP_0_9.toString()) == 0) {
@@ -26,9 +30,9 @@ namespace myoi {
     }
 
     HttpMethod
-        HttpMethod::GET{"GET"},
-        HttpMethod::POST{"POST"},
-        HttpMethod::HEAD{"HEAD"};
+            HttpMethod::GET{"GET"},
+            HttpMethod::POST{"POST"},
+            HttpMethod::HEAD{"HEAD"};
 
     bool HttpMethod::parse(HttpMethod &method, const char *str) {
         using Method = HttpMethod;
@@ -79,7 +83,4 @@ namespace myoi {
             {502, "Bad Gateway"},
             {503, "Service Unavailable"},
     };
-
-
-
 }

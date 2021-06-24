@@ -1,41 +1,55 @@
-//
-// Created by jason on 2021/4/12.
-//
+/**
+ * @file TcpSocket.h
+ * @author Jason Cheung
+ * @date 2021.04.12
+ * @brief The class encapsulated basic Socket APIs (read/write, connect, bind/listen, etc.).
+ */
 
-#ifndef MYOIHTTP_TCPCONNECTION_H
-#define MYOIHTTP_TCPCONNECTION_H
+#ifndef MYOI_TCPSOCKET_H
+#define MYOI_TCPSOCKET_H
 
-#include "util/Ipv4Address.h"
-#include <memory>
+#include "util/InetAddress.h"
 
 namespace myoi {
 
-    enum class SocketType { INVALID_TYPE, LISTENER, CONNECTION};
+
 
     class TcpSocket {
     public:
+        enum class Type {
+            INVALID_TYPE, LISTENER, CONNECTION
+        };
+
     private:
         int fildes_{-1};
-        SocketType type_{SocketType::INVALID_TYPE};
-        TcpSocket(int socket, SocketType type) : fildes_{socket}, type_{type} {}
+        Type type_{Type::INVALID_TYPE};
+
+        TcpSocket(int socket, Type type) : fildes_{socket}, type_{type} {}
 
     public:
         TcpSocket() = default;
+
         ~TcpSocket() = default;
 
-        bool connect(const Ipv4Address& address);
-        bool listen(const Ipv4Address &address);
+        bool connect(const InetAddress &address);
+
+        bool listen(const InetAddress &address);
+
         bool close();
 
         [[nodiscard]] bool isOpen() const { return fildes_ >= 0; }
+
         [[nodiscard]] int index() const { return fildes_; }
-        [[nodiscard]] SocketType type() const { return type_; }
 
-        [[nodiscard]] Ipv4Address hostAddress() const;
-        [[nodiscard]] Ipv4Address peerAddress() const;
+        [[nodiscard]] Type type() const { return type_; }
 
-        ssize_t tryRead(char *buffer, size_t size) const;
-        ssize_t tryWrite(const char *buffer, size_t size) const;
+        [[nodiscard]] InetAddress hostAddress() const;
+
+        [[nodiscard]] InetAddress peerAddress() const;
+
+        ssize_t read(char *buffer, size_t size) const;
+
+        ssize_t write(const char *buffer, size_t size) const;
 
         [[nodiscard]] TcpSocket accept() const;
 
@@ -44,4 +58,4 @@ namespace myoi {
     };
 }
 
-#endif //MYOIHTTP_TCPCONNECTION_H
+#endif //MYOI_TCPSOCKET_H

@@ -1,12 +1,17 @@
-//
-// Created by jason on 3/6/21.
-//
+/**
+ * @file FileInfo.cpp
+ * @author Jason Cheung
+ * @date 2021.06.03
+ * @brief The class encapsulated file information APIs (`stat/fstat`).
+ */
 
 #include "util/FileInfo.h"
-#include <cassert>
-#include <cstring>
+
 #include <map>
 #include <string>
+#include <cassert>
+#include <cstring>
+
 namespace myoi {
     using std::map, std::string;
     const static map<string, const char *> mimes{

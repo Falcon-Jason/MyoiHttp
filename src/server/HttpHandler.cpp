@@ -1,80 +1,88 @@
-//
-// Created by jason on 16/6/21.
-//
+/**
+ * @file HttpHandler.cpp
+ * @author Jason Cheung
+ * @date 2021.06.25
+ */
 
 #include "server/HttpHandler.h"
-#include "util/FileInfo.h"
+#include "server/HttpProcessor.h"
+
+#include <thread>
 #include <fmt/format.h>
-#include <fcntl.h>
-#include <sys/sendfile.h>
+#include <sys/epoll.h>
 
 namespace myoi {
-    using std::string;
-
-    void HttpHandler::handle(TcpSocket *connection, HttpRequestParser *parser, const CallBack* pCallback) {
-        auto &callback = *pCallback;
-        auto n = connection->tryRead(buffer, BUFFER_SIZE - 1);
-        if (n <= 0) {
-            return callback(connection, false);
-        }
-        buffer[n] = 0;
-
-        parser->parse(buffer);
-        if (parser->success()) {
-            handleResponse(&parser->request(), connection);
-            return callback(connection, false);
-        } else if (parser->failure()) {
-            handleErrorResponse(400, connection);
-            return callback(connection, false);
-        }
-        return callback(connection, true);
+    EventHandler * HttpEvent::handler() {
+        return dynamic_cast<EventHandler *>(handler_);
     }
 
-    void HttpHandler::handleResponse(const HttpRequest *request, const TcpSocket *connection) {
-        if (request->method() == HttpMethod::POST) {
-            return handleErrorResponse(501, connection);
-        }
+    void HttpHandler::handle(Event *e, EventReactor *reactor) {
+        auto *event = dynamic_cast<HttpEvent *>(e);
+        if (event == nullptr) { return; }
 
-        HttpResponse response{};
-        FileInfo file{};
-
-        string path = baseDir + request->uri();
-        if (path.back() == '/') { path.append("index.html"); }
-        file.setFile(path.c_str());
-        if (!file.exists()) { return handleErrorResponse(404, connection); }
-        if (!file.readable()) { return handleErrorResponse(403, connection); }
-
-        response.status_ = 200;
-        response.version_ = request->version();
-        response.headers_["Close"] = "true";
-        response.headers_["Content-length"] = fmt::format("{}", file.size());
-
-        sendResponse(&response, connection);
-        if (request->method() == HttpMethod::GET) {
-            sendData(file, connection);
+        switch (event->type()) {
+            case TcpSocket::Type::INVALID_TYPE:
+                return;
+            case TcpSocket::Type::CONNECTION:
+                return process(event, reactor);
+            case TcpSocket::Type::LISTENER:
+                return listen(event, reactor);
         }
     }
 
-    void HttpHandler::handleErrorResponse(int errCode, const TcpSocket *connection) {
-        HttpResponse response{};
-        response.status_ = errCode;
-        response.version_ = HttpVersion::HTTP_1_0;
-        response.headers_["Close"] = "true";
-
-        sendResponse(&response, connection);
+    void HttpHandler::process(HttpEvent *event, EventReactor *reactor) {
+        auto proc = [this, event, reactor](){ HttpProcessor{this}.process(event, reactor); };
+        std::thread{proc}.detach();
     }
 
-    bool HttpHandler::sendData(const FileInfo &file, const TcpSocket *connection) {
-        int fildes = ::open(file.filename(), O_RDONLY);
-        if (fildes < 0) { return false; }
-        ssize_t ret = ::sendfile(connection->index(), fildes, nullptr, file.size());
-        return (ret >= 0);
+    void HttpHandler::listen(HttpEvent *event, EventReactor *reactor) {
+        auto newConn = event->socket().accept();
+        if (!newConn.isOpen()) { return; }
+
+        fmt::print(stderr, "[INFO] Connection {} from {} got\n",
+                   newConn.index(),
+                   newConn.peerAddress().toString());
+        registerEvent(newConn, reactor);
+
+
+        reactor->resetEvent(event);
     }
 
-    bool HttpHandler::sendResponse(const HttpResponse *response, const TcpSocket *connection) {
-        string respStr = response->toString();
-        ssize_t ret = connection->tryWrite(respStr.c_str(), respStr.size());
-        return (ret >= 0);
+    void HttpHandler::registerEvent(TcpSocket socket, EventReactor *reactor) {
+        eventsMutex.lock();
+
+        auto newEvent = std::make_unique<HttpEvent>(socket, this);
+        reactor->registerEvent(newEvent.get());
+
+        events_[socket.index()] = std::move(newEvent);
+        eventsMutex.unlock();
     }
 
+    void HttpHandler::removeEvent(HttpEvent *event, EventReactor *reactor) {
+        eventsMutex.lock();
+        fmt::print(stderr, "[INFO] Connection {} from {} closed\n",
+                   event->socket().index(),
+                   event->socket().peerAddress().toString());
+
+        reactor->removeEvent(event);
+
+        if (events_.count(event->nativeHandle())) {
+            events_.erase(event->nativeHandle());
+        }
+        eventsMutex.unlock();
+    }
+
+    bool HttpHandler::init(const InetAddress &address, EventReactor *reactor) {
+        TcpSocket socket{};
+        bool success = socket.listen(address);
+        if (!success) { return false; }
+
+        reactor->setDefaultMode(EPOLLONESHOT);
+        registerEvent(socket, reactor);
+
+        fmt::print(stderr, "[INFO] listener {} registered at {}\n",
+                   socket.index(),
+                   socket.hostAddress().toString());
+        return true;
+    }
 }

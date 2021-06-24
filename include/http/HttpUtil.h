@@ -1,9 +1,11 @@
-//
-// Created by jason on 3/6/21.
-//
+/**
+ * @file HttpUtil.h
+ * @author Jason Cheung
+ * @date 2021.06.03
+ */
 
-#ifndef MYOIHTTP_HTTP_H
-#define MYOIHTTP_HTTP_H
+#ifndef MYOI_HTTPUTIL_H
+#define MYOI_HTTPUTIL_H
 
 #include <map>
 #include <string>
@@ -85,7 +87,7 @@ namespace myoi {
         [[nodiscard]] std::string toString() const;
 
 
-        friend class HttpHandler;
+        friend class HttpProcessor;
 
     private:
         const static std::map<int, std::string> StatusInfo_;
@@ -99,4 +101,5 @@ namespace myoi {
 
 }
 
-#endif //MYOIHTTP_HTTP_H
+
+#endif //MYOI_HTTPUTIL_H

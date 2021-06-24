@@ -1,25 +1,24 @@
-//
-// Created by jason on 2021/4/12.
-//
+/**
+ * @file InetAddress.h
+ * @author Jason Cheung
+ * @date 2021.04.12
+ * @brief The class encapsulated internet addresses(`sockaddr_in`).
+ */
 
-#ifndef MYOIHTTP_IPV4ADDRESS_H
-#define MYOIHTTP_IPV4ADDRESS_H
+#ifndef MYOI_INETADDRESS_H
+#define MYOI_INETADDRESS_H
 
-#include <arpa/inet.h>
-#include <string_view>
 #include <string>
+#include <arpa/inet.h>
 
 namespace myoi {
-    using Socket = int;
-    class Ipv4Address : private sockaddr_in {
-    private:
-
+    class InetAddress : sockaddr_in {
     public:
-        Ipv4Address();
+        InetAddress();
 
-        explicit Ipv4Address(const char *address, uint16_t port);
+        explicit InetAddress(const char *address, uint16_t port);
 
-        ~Ipv4Address() = default;
+        ~InetAddress() = default;
 
         [[nodiscard]] std::string address() const;
 
@@ -38,4 +37,5 @@ namespace myoi {
         void setPort(uint16_t port);
     };
 }
-#endif //MYOIHTTP_IPV4ADDRESS_H
+
+#endif //MYOI_INETADDRESS_H
