@@ -13,11 +13,16 @@
 std::unique_ptr<myoi::HttpHandler> handler;
 std::unique_ptr<myoi::EventReactor> reactor;
 
-void term(int signal) { reactor->term(); }
+void term(int signal) {
+    reactor->terminate();
+    handler->terminate();
+}
 
 int main(int argc, char **argv) {
     reactor = std::make_unique<myoi::EventReactor>();
-    handler = std::make_unique<myoi::HttpHandler>("/home/jason/Documents/MyoiHttp");
+    handler = std::make_unique<myoi::HttpHandler>(
+            "/home/jason/Documents/MyoiHttp",
+            std::thread::hardware_concurrency());
 
     bool success = reactor->open(64);
     if (!success) { return EXIT_FAILURE; }

@@ -5,7 +5,8 @@ add_library(myoi_event
 add_library(myoi_util
         util/TcpSocket.cpp
         util/FileInfo.cpp
-        util/InetAddress.cpp)
+        util/InetAddress.cpp
+        ../include/util/Semaphore.h)
 target_link_libraries(myoi_util fmt)
 
 add_library(myoi_http

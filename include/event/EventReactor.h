@@ -17,7 +17,7 @@ namespace myoi {
     private:
         EpollSelector epoll{};
         int timeout{-1};
-        volatile int terminate{1};
+        volatile int term{1};
 
     public:
         explicit EventReactor() = default;
@@ -26,7 +26,7 @@ namespace myoi {
 
         int exec();
 
-        void term();
+        void terminate();
 
         bool close();
 

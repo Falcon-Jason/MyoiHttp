@@ -13,7 +13,7 @@ namespace myoi {
     int EventReactor::exec() {
         assert(isOpen());
 
-        while (!terminate) {
+        while (!term) {
             Event *event = epoll.wait(timeout);
             if(event == nullptr) { continue; }
 
@@ -24,12 +24,12 @@ namespace myoi {
         return 0;
     }
 
-    void EventReactor::term() {
-        terminate = 1;
+    void EventReactor::terminate() {
+        term = 1;
     }
 
     bool EventReactor::open(int queueSize) {
-        terminate = 0;
+        term = 0;
         return epoll.open(queueSize);
     }
 

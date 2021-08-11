@@ -16,6 +16,7 @@ namespace myoi {
     using std::string;
 
     void HttpProcessor::process(HttpEvent *event, EventReactor *reactor) {
+//        fmt::print(stderr, "[INFO] Socket {} handling.\n", event->socket().index());
         switch (event->mode()) {
             case Event::Mode::READ:
                 return processRead(event, reactor);
@@ -99,6 +100,37 @@ namespace myoi {
         string respStr = response.toString();
         ssize_t ret = event->socket().write(respStr.c_str(), respStr.size());
         return (ret >= 0);
+    }
+
+    void HttpProcessor::start() {
+        std::unique_ptr<HttpProcessor> processor{new HttpProcessor{handler_}};
+
+        while (true) {
+            handler_->queueSem_.wait();
+            handler_->queueMutex_.lock();
+
+            auto task = handler_->queue_.front();
+
+            bool terminate = (task.reactor == nullptr || task.event == nullptr);
+            if (!terminate) { handler_->queue_.pop_front(); }
+
+            handler_->queueMutex_.unlock();
+
+            if (terminate) {
+                handler_->queueSem_.post();
+                break;
+            }
+
+            auto taskEvent = dynamic_cast<HttpEvent *>(task.event);
+            if (taskEvent != nullptr){
+                processor->process(taskEvent, task.reactor);
+            }
+        }
+    }
+
+
+    void HttpProcessor::terminate() {
+        handler_->queue_.push_front(HttpHandler::Task{nullptr, nullptr});
     }
 
 }

@@ -22,6 +22,7 @@ namespace myoi {
     public:
         virtual ~Event() = default;
         virtual NativeHandle nativeHandle() = 0;
+
         virtual EventHandler* handler() = 0;
         virtual Mode mode() = 0;
     };

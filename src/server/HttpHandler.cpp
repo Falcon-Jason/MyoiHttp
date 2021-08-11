@@ -31,8 +31,13 @@ namespace myoi {
     }
 
     void HttpHandler::process(HttpEvent *event, EventReactor *reactor) {
-        auto proc = [this, event, reactor](){ HttpProcessor{this}.process(event, reactor); };
-        std::thread{proc}.detach();
+//        auto proc = [this, event, reactor](){ HttpProcessor{this}.process(event, reactor); };
+//        std::thread{proc}.detach();
+//        fmt::print(stderr, "[INFO] Socket {} submitted.\n", event->socket().index());
+        queueMutex_.lock();
+        queue_.push_back(Task{event, reactor});
+        queueMutex_.unlock();
+        queueSem_.post();
     }
 
     void HttpHandler::listen(HttpEvent *event, EventReactor *reactor) {
@@ -49,17 +54,17 @@ namespace myoi {
     }
 
     void HttpHandler::registerEvent(TcpSocket socket, EventReactor *reactor) {
-        eventsMutex.lock();
+        eventsMutex_.lock();
 
         auto newEvent = std::make_unique<HttpEvent>(socket, this);
         reactor->registerEvent(newEvent.get());
 
         events_[socket.index()] = std::move(newEvent);
-        eventsMutex.unlock();
+        eventsMutex_.unlock();
     }
 
     void HttpHandler::removeEvent(HttpEvent *event, EventReactor *reactor) {
-        eventsMutex.lock();
+        eventsMutex_.lock();
         fmt::print(stderr, "[INFO] Connection {} from {} closed\n",
                    event->socket().index(),
                    event->socket().peerAddress().toString());
@@ -69,7 +74,7 @@ namespace myoi {
         if (events_.count(event->nativeHandle())) {
             events_.erase(event->nativeHandle());
         }
-        eventsMutex.unlock();
+        eventsMutex_.unlock();
     }
 
     bool HttpHandler::init(const InetAddress &address, EventReactor *reactor) {

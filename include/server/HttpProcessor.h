@@ -26,6 +26,10 @@ namespace myoi {
 
         void process(HttpEvent *event, EventReactor *reactor);
 
+        void start();
+
+        void terminate();
+
     private:
         void processRead(HttpEvent *event, EventReactor *reactor);
 
