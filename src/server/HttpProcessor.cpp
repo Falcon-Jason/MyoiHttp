@@ -15,48 +15,48 @@
 namespace myoi {
     using std::string;
 
-    void HttpProcessor::process(HttpEvent *event, EventReactor *reactor) {
+    void HttpProcessor::run() {
 //        fmt::print(stderr, "[INFO] Socket {} handling.\n", event->socket().index());
-        switch (event->mode()) {
+        switch (event_->mode()) {
             case Event::Mode::READ:
-                return processRead(event, reactor);
+                return processRead();
             case Event::Mode::WRITE:
-                return processWrite(event, reactor);
+                return processWrite();
             default:
                 return;
         }
     }
 
-    void HttpProcessor::processRead(HttpEvent *event, EventReactor *reactor) {
+    void HttpProcessor::processRead() {
         char buffer[BUFFER_SIZE];
-        auto &conn = event->socket();
+        auto &conn = event_->socket();
         auto nRead = conn.read(buffer, BUFFER_SIZE - 1);
-        if (nRead <= 0) { return handler_->removeEvent(event, reactor); }
+        if (nRead <= 0) { return handler_->removeEvent(event_, reactor_); }
 
         buffer[nRead] = '\0';
-        event->parser().parse(buffer);
+        event_->parser().parse(buffer);
 
-        if (!event->parser().open()) {
-            event->setMode(Event::Mode::WRITE);
+        if (!event_->parser().open()) {
+            event_->setMode(Event::Mode::WRITE);
         }
-        reactor->resetEvent(event);
+        reactor_->resetEvent(event_);
     }
 
-    void HttpProcessor::processWrite(HttpEvent *event, EventReactor *reactor) {
-        if (event->parser().success()) {
-            processWriteResponse(event);
+    void HttpProcessor::processWrite() {
+        if (event_->parser().success()) {
+            processWriteResponse();
         } else {
-            processWriteError(event, 400);
+            processWriteError(400);
         }
-        handler_->removeEvent(event, reactor);
+        handler_->removeEvent(event_, reactor_);
 //        reactor->removeEvent(event);
     }
 
 
-    void HttpProcessor::processWriteResponse(HttpEvent *event) {
-        auto &request = event->parser().request();
+    void HttpProcessor::processWriteResponse() {
+        auto &request = event_->parser().request();
         if (request.method() == HttpMethod::POST) {
-            return processWriteError(event, 501);
+            return processWriteError(501);
         }
 
         HttpResponse response{};
@@ -65,72 +65,40 @@ namespace myoi {
         string path = handler_->baseDir() + request.uri();
         if (path.back() == '/') { path.append("index.html"); }
         file.setFile(path.c_str());
-        if (!file.exists()) { return processWriteError(event, 404); }
-        if (!file.readable()) { return processWriteError(event, 403); }
+        if (!file.exists()) { return processWriteError(404); }
+        if (!file.readable()) { return processWriteError(403); }
 
         response.status_ = 200;
         response.version_ = request.version();
         response.headers_["Close"] = "true";
         response.headers_["Content-length"] = fmt::format("{}", file.size());
 
-        sendResponse(event, response);
+        sendResponse(response);
         if (request.method() == HttpMethod::GET) {
-            sendData(event, file);
+            sendData(file);
         }
     }
 
-    void HttpProcessor::processWriteError(HttpEvent *event, int errCode) {
+    void HttpProcessor::processWriteError(int errCode) {
         HttpResponse response{};
         response.status_ = errCode;
         response.version_ = HttpVersion::HTTP_1_0;
         response.headers_["Close"] = "true";
 
-        sendResponse(event, response);
+        sendResponse(response);
     }
 
-    bool HttpProcessor::sendData(HttpEvent *event, const FileInfo &file) {
+    bool HttpProcessor::sendData(const FileInfo &file) {
         int fildes = ::open(file.filename(), O_RDONLY);
         if (fildes < 0) { return false; }
-        ssize_t ret = ::sendfile(event->socket().index(), fildes, nullptr, file.size());
+        ssize_t ret = ::sendfile(event_->socket().index(), fildes, nullptr, file.size());
         ::close(fildes);
         return (ret >= 0);
     }
 
-    bool HttpProcessor::sendResponse(HttpEvent *event, const HttpResponse &response) {
+    bool HttpProcessor::sendResponse(const HttpResponse &response) {
         string respStr = response.toString();
-        ssize_t ret = event->socket().write(respStr.c_str(), respStr.size());
+        ssize_t ret = event_->socket().write(respStr.c_str(), respStr.size());
         return (ret >= 0);
     }
-
-    void HttpProcessor::start() {
-        std::unique_ptr<HttpProcessor> processor{new HttpProcessor{handler_}};
-
-        while (true) {
-            handler_->queueSem_.wait();
-            handler_->queueMutex_.lock();
-
-            auto task = handler_->queue_.front();
-
-            bool terminate = (task.reactor == nullptr || task.event == nullptr);
-            if (!terminate) { handler_->queue_.pop_front(); }
-
-            handler_->queueMutex_.unlock();
-
-            if (terminate) {
-                handler_->queueSem_.post();
-                break;
-            }
-
-            auto taskEvent = dynamic_cast<HttpEvent *>(task.event);
-            if (taskEvent != nullptr){
-                processor->process(taskEvent, task.reactor);
-            }
-        }
-    }
-
-
-    void HttpProcessor::terminate() {
-        handler_->queue_.push_front(HttpHandler::Task{nullptr, nullptr});
-    }
-
 }

@@ -9,6 +9,7 @@
 
 #include "util/TcpSocket.h"
 #include "util/FileInfo.h"
+#include "util/FixedThreadPool.h"
 #include "event/EventReactor.h"
 #include "http/HttpRequestParser.h"
 #include "HttpEvent.h"
@@ -17,31 +18,32 @@
 namespace myoi {
     constexpr int BUFFER_SIZE = 1024;
 
-    class HttpProcessor {
+    class HttpProcessor : public Task {
     private:
         HttpHandler *handler_;
+        HttpEvent *event_;
+        EventReactor *reactor_;
 
     public:
-        explicit HttpProcessor(HttpHandler *handler) : handler_{handler} {}
+        explicit HttpProcessor(HttpHandler *handler, HttpEvent *event, EventReactor *reactor)
+        : handler_{handler}, event_{event}, reactor_{reactor} {}
 
-        void process(HttpEvent *event, EventReactor *reactor);
+        ~HttpProcessor() override = default;
 
-        void start();
-
-        void terminate();
+        void run() override;
 
     private:
-        void processRead(HttpEvent *event, EventReactor *reactor);
+        void processRead();
 
-        void processWrite(HttpEvent *event, EventReactor *reactor);
+        void processWrite();
 
-        void processWriteResponse(HttpEvent *event);
+        void processWriteResponse();
 
-        static void processWriteError(HttpEvent *event, int errCode);
+        void processWriteError(int errCode);
 
-        static bool sendData(HttpEvent *event, const FileInfo& file);
+        bool sendData(const FileInfo& file);
 
-        static bool sendResponse(HttpEvent *event, const HttpResponse &response);
+        bool sendResponse(const HttpResponse &response);
     };
 }
 

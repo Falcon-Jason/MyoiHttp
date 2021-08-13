@@ -24,7 +24,7 @@ namespace myoi {
 
         bool open(int queueSize);
 
-        int exec();
+        virtual int exec();
 
         void terminate();
 

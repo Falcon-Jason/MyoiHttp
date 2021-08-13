@@ -7,7 +7,7 @@
 #ifndef MYOI_HTTPHANDLER_H
 #define MYOI_HTTPHANDLER_H
 
-#include "util/Semaphore.h"
+#include "util/FixedThreadPool.h"
 #include "event/EventHandler.h"
 #include "event/EventReactor.h"
 #include "HttpEvent.h"
@@ -36,33 +36,19 @@ namespace myoi {
     private:
         EventSet events_;
         std::string baseDir_;
-        std::mutex eventsMutex_;
+        std::mutex mutex_;
+        FixedThreadPool pool_;
 
-        TaskQueue queue_;
-        Semaphore queueSem_;
-        std::mutex queueMutex_;
-
-        HttpProcessor processor_;
-        std::unique_ptr<ThreadPtr[]> threadPool_;
 
     public:
-        explicit HttpHandler(const char *baseDir, unsigned int nThread) noexcept
-            : events_{}, eventsMutex_{}, baseDir_{baseDir}, processor_{this},
-              queue_{}, queueSem_{}, queueMutex_{}, threadPool_{} {
-            threadPool_ = std::make_unique<ThreadPtr[]>(nThread);
-            for (int i = 0; i < nThread; i++) {
-                threadPool_[i] = std::make_unique<std::thread>(&HttpProcessor::start, &processor_);
-                threadPool_[i]->detach();
-            }
-        }
+        explicit HttpHandler(const char *baseDir, int nThread) noexcept
+            : events_{}, mutex_{}, baseDir_{baseDir}, pool_{nThread} {}
 
         void handle(Event *e, EventReactor *reactor) override;
 
         bool init(const InetAddress &address, EventReactor *reactor);
 
         const std::string &baseDir() const { return baseDir_; }
-
-        void terminate() { processor_.terminate(); }
 
 
     private:

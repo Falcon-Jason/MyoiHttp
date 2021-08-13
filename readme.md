@@ -5,15 +5,20 @@
 本项目是一个使用现代C++编写的Http服务器，运行于Linux平台。本项目将随我本人对于Socket网络编程、Linux系统编程和C++的深入学习和理解，逐步完善。当前版本支持的功能以及特性如下：
 
 * 支持GET/HEAD请求，目前仅支持处理静态资源;
-* 基于`Epoll`实现，采用`Reactor`设计模式；
+* 基于`Epoll`实现，采用`Reactor`设计模式，使用固定大小的静态内存池；
 * 仅支持IPv4协议，且暂不支持HTTP长连接;
 
 ## 更新日志
 
+### 2021.08.14更新
+
+* 在util下实现了通用的，固定大小的内存池，并用于server中；
+* 将原本main函数中，初始化和执行reactor的内容封装到了HttpReactor中；
+
 ### 2021.06.25更新
 
-* 重新设计了整体结构，将与`epoll`相关的操作独立出来，形成`event`模块；
-* 基于`event`模块重新实现了HttpHandler(原HttpHandlerController)和HttpProcessor(原HttpHandler);
+* 重新设计了整体结构，将与`epoll`相关的操作独立出来，形成`event_`模块；
+* 基于`event_`模块重新实现了HttpHandler(原HttpHandlerController)和HttpProcessor(原HttpHandler);
 
 ### 2021.06.19更新
 
@@ -60,10 +65,9 @@
 
 目前在计划内的开发工作包括：
 
-* 采用线程池技术，优化并发性能；
 * 完善代码中的注释和文档，并提高异常处理的能力;
 * 完善`test`目录，为每个模块编写完整的单元测试;
-* 实现对POST请求和对CGI程序的支持;
+* 实现一套类似Java Servlet的接口，用于生成动态网页；
 
 ## 其它问题
 
