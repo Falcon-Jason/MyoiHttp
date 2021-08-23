@@ -15,7 +15,7 @@ void term(int signal) {
 
 int main(int argc, char **argv) {
     server = std::make_unique<myoi::HttpServer>(
-            "0.0.0.0", 0,
+            "0.0.0.0", 8080,
             std::thread::hardware_concurrency() * 2, 1024,
             "/home/jason/Documents/MyoiHttp"
     );

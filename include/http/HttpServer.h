@@ -6,13 +6,6 @@
 #define MYOI_HTTPSERVER_H
 
 #include "server/TcpServer.h"
-#include "util/FileInfo.h"
-
-#include <fmt/format.h>
-#include <fcntl.h>
-#include <sys/sendfile.h>
-#include <unistd.h>
-
 namespace myoi {
 
     class HttpServer : public TcpServer {
@@ -32,16 +25,8 @@ namespace myoi {
 
         void onWritable(TcpEvent *event) override;
 
-        [[nodiscard]] const std::string &baseDir() const { return baseDir_; }
-
     private:
-        void processWriteResponse(TcpEvent *event);
 
-        void processWriteError(int errCode, TcpEvent *event);
-
-        bool sendData(const FileInfo &file, TcpEvent *event);
-
-        bool sendResponse(const HttpResponse &response, TcpEvent *event);
     };
 }
 

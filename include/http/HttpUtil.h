@@ -100,7 +100,7 @@ namespace myoi {
         [[nodiscard]] std::string toString() const;
 
 
-        friend class HttpServer;
+        friend class HttpHandler;
 
     private:
         const static std::map<int, std::string> StatusInfo_;

@@ -10,6 +10,12 @@
 
 ## 更新日志
 
+### 2021.08.24更新
+
+* 参考了`muduo`相关实现，取消了原有的`HttpHandler`和`HttpReactor`，将代码合并至`HttpServer`，再将TCP相关的内容从`HttpServer`中独立，以便于重用；
+* 将原有的`HttpProcessor`改名为`HttpHandler`，同时为便于后续扩展，将`EventLoop`从`TcpServer`中独立出来；
+* 为测试TcpServer的可重用性，快速实现了一个EchoServer；
+
 ### 2021.08.14更新
 
 * 在util下实现了通用的，固定大小的内存池，并用于server中；

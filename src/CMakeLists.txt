@@ -16,7 +16,7 @@ add_library(myoi_http
         http/HttpUtil.cpp
         http/HttpRequestParser.cpp
         http/HttpServer.cpp
-        http/main.cpp)
+        http/HttpHandler.cpp)
 
 add_executable(MyoiHttp http/main.cpp)
 
