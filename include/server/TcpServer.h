@@ -22,7 +22,6 @@ namespace myoi {
     class TcpServer : private EventLoop {
     public:
         using EventSet = std::map<NativeHandle, std::unique_ptr<Event>>;
-        using Callback = std::function<void()>;
 
     private:
         EventSet events_{};
