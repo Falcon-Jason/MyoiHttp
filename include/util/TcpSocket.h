@@ -13,7 +13,6 @@
 namespace myoi {
 
 
-
     class TcpSocket {
     public:
         enum class Type {

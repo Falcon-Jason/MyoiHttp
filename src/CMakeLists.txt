@@ -1,25 +1,30 @@
-add_library(myoi_event
-        event/EpollSelector.cpp
-        event/EventReactor.cpp)
 
 add_library(myoi_util
         util/TcpSocket.cpp
         util/FileInfo.cpp
         util/InetAddress.cpp
         util/FixedThreadPool.cpp)
+
 target_link_libraries(myoi_util fmt pthread)
+
+add_library(myoi_server
+        server/EpollSelector.cpp
+        server/EventLoop.cpp
+        server/TcpServer.cpp)
 
 add_library(myoi_http
         http/HttpUtil.cpp
-        http/HttpRequestParser.cpp)
+        http/HttpRequestParser.cpp
+        http/HttpServer.cpp
+        http/main.cpp)
 
-add_executable(myoi_server
-        server/main.cpp
-        server/HttpHandler.cpp
-        server/HttpProcessor.cpp
-        server/HttpReactor.cpp ../include/server/HttpReactor.h server/HttpReactor.cpp ../include/server/HttpReactor.h)
+add_executable(MyoiHttp http/main.cpp)
 
-target_link_libraries(myoi_server myoi_event myoi_util myoi_http fmt)
+target_link_libraries(MyoiHttp myoi_http myoi_server myoi_util fmt)
+
+add_executable(MyoiEcho echo/main.cpp)
+
+target_link_libraries(MyoiEcho myoi_server myoi_util)
 
 #target_link_libraries(myoi_server myoi_util fmt aio pthread)
 

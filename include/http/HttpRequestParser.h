@@ -23,30 +23,46 @@ namespace myoi {
 
     public:
         HttpRequestParser();
+
         void clear();
-        void parse(const char* string);
+
+        void parse(const char *string);
 
         [[nodiscard]] bool success() const;
+
         [[nodiscard]] bool failure() const;
+
         [[nodiscard]] bool open() const;
 
         HttpRequest *datum() { return success() ? &request_ : nullptr; }
+
         [[nodiscard]] const HttpRequest &request() const { return request_; }
 
     private:
         bool parseOne(char ch);
 
         bool onParsingMethod(char ch);
+
         bool onParsedMethod(char ch);
+
         bool onParsingUri(char ch);
+
         bool onParsedUri(char ch);
+
         bool onParsingVersion(char ch);
+
         bool onParsedVersion(char ch);
+
         bool onParsingHeader(char ch);
+
         bool onParsingHeaderName(char ch);
+
         bool onParsedHeaderName(char ch);
+
         bool onParsingHeaderValue(char ch);
+
         bool onParsedHeaderValue(char ch);
+
         bool onNeedFinalLf(char ch);
 
         void go(Status status);

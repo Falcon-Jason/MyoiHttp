@@ -58,7 +58,7 @@ namespace myoi {
                                version_.toString(),
                                status_,
                                StatusInfo(status_)));
-        for(auto &i : headers_) {
+        for (auto &i : headers_) {
             response.append(format("{}: {}\r\n", i.first, i.second));
         }
         response.append("\r\n");

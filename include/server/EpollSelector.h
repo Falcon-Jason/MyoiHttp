@@ -26,11 +26,11 @@ namespace myoi {
 
         [[nodiscard]] bool isOpen() const { return fildes_ >= 0; }
 
-        bool registerEvent(Event *event, uint32_t mode = 0) const;
+        bool registerEvent(Event *event) const;
 
-        bool removeEvent(Event *event, uint32_t mode = 0) const;
+        bool removeEvent(Event *event) const;
 
-        bool resetEvent(Event *event, uint32_t mode = 0) const;
+        bool resetEvent(Event *event) const;
 
         void setDefaultMode(uint32_t mode) { defaultMode_ = mode; }
 

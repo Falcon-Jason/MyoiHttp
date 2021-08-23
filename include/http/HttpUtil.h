@@ -20,11 +20,13 @@ namespace myoi {
     private:
         const char *version_;
 
-        explicit HttpVersion(const char *version) noexcept : version_{version} {}
+        explicit HttpVersion(const char *version) noexcept: version_{version} {}
 
     public:
         [[nodiscard]] const char *toString() const { return version_; };
-        static bool parse(HttpVersion& version, const char *str);
+
+        static bool parse(HttpVersion &version, const char *str);
+
         bool operator==(HttpVersion rhs) const { return version_ == rhs.version_; }
 
     };
@@ -36,11 +38,13 @@ namespace myoi {
     private:
         const char *method_;
 
-        explicit HttpMethod(const char *method) noexcept : method_{method} {}
+        explicit HttpMethod(const char *method) noexcept: method_{method} {}
 
     public:
         [[nodiscard]] const char *toString() const { return method_; };
-        static bool parse(HttpMethod& method, const char *str);
+
+        static bool parse(HttpMethod &method, const char *str);
+
         bool operator==(HttpMethod rhs) const { return method_ == rhs.method_; }
 
     };
@@ -51,7 +55,9 @@ namespace myoi {
         std::string uri_{};
         HttpVersion version_{HttpVersion::HTTP_1_0};
         HttpHeaders headers_{};
+
         HttpRequest() = default;
+
         void clear() {
             uri_.clear();
             headers_.clear();
@@ -63,8 +69,11 @@ namespace myoi {
                 : method_{method}, uri_{uri}, version_{version}, headers_{std::move(headers)} {}
 
         [[nodiscard]] HttpMethod method() const { return method_; }
+
         [[nodiscard]] const char *uri() const { return uri_.c_str(); }
+
         [[nodiscard]] HttpVersion version() const { return version_; }
+
         [[nodiscard]] const HttpHeaders &headers() const { return headers_; }
 
         friend class HttpRequestParser;
@@ -75,6 +84,7 @@ namespace myoi {
         HttpVersion version_{HttpVersion::HTTP_1_0};
         int status_{};
         HttpHeaders headers_{};
+
         HttpResponse() = default;
 
     public:
@@ -82,12 +92,15 @@ namespace myoi {
                 : version_{version}, status_{status}, headers_{std::move(headers)} {}
 
         [[nodiscard]] HttpVersion version() const { return version_; }
+
         [[nodiscard]] int status() const { return status_; }
+
         [[nodiscard]] const HttpHeaders &headers() const { return headers_; };
+
         [[nodiscard]] std::string toString() const;
 
 
-        friend class HttpProcessor;
+        friend class HttpServer;
 
     private:
         const static std::map<int, std::string> StatusInfo_;

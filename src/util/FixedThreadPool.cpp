@@ -9,7 +9,7 @@
 
 namespace myoi {
     FixedThreadPool::FixedThreadPool(int threadsCount)
-      : threads_{}, tasks_{}, mutex_{}, notifier_{}, terminate_{false} {
+            : threads_{}, tasks_{}, mutex_{}, notifier_{}, terminate_{false} {
         for (int i = 0; i < threadsCount; i++) {
             threads_.emplace_back(&FixedThreadPool::threadRun, this, i);
         }
@@ -24,14 +24,14 @@ namespace myoi {
                 std::unique_lock<std::mutex> lock{mutex_};
                 notifier_.wait(lock, [this]() { return terminate_ || !tasks_.empty(); });
                 if (terminate_ || tasks_.empty()) {
-                    fmt::print(stderr, "[INFO] Thread {} stopped\n", id);
+//                    fmt::print(stderr, "[INFO] Thread {} stopped\n", id);
                     return;
                 }
                 task = tasks_.front();
                 tasks_.pop_front();
-            } while(false);
+            } while (false);
 
-            task->run();
+            task->operator()();
         }
 
 
@@ -42,14 +42,14 @@ namespace myoi {
         terminate_ = true;
         mutex_.unlock();
         notifier_.notify_all();
-        for (auto & th : threads_) {
+        for (auto &th : threads_) {
             th.join();
         }
 
         fmt::print(stderr, "[INFO] Closed Thread Pool with {} threads\n", threads_.size());
     }
 
-    void FixedThreadPool::submit(const std::shared_ptr<Task>& task) {
+    void FixedThreadPool::submit(const std::shared_ptr<Task> &task) {
         mutex_.lock();
         assert(!terminate_);
         tasks_.emplace_back(task);

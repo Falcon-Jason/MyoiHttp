@@ -7,16 +7,14 @@
 #include <list>
 #include <mutex>
 #include <condition_variable>
+#include <functional>
+
 #ifndef MYOI_FIXEDTHREADPOOL_H
 #define MYOI_FIXEDTHREADPOOL_H
 
 
 namespace myoi {
-    class Task {
-    public:
-        virtual void run() = 0;
-        virtual ~Task() = default;
-    };
+    using Task = std::function<void()>;
 
     class FixedThreadPool {
     private:
@@ -33,12 +31,10 @@ namespace myoi {
 
         ~FixedThreadPool();
 
-        void submit(const std::shared_ptr<Task>& task);
+        void submit(const std::shared_ptr<Task> &task);
     };
 
 }
-
-
 
 
 #endif //MYOI_FIXEDTHREADPOOL_H

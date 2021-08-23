@@ -16,10 +16,10 @@ namespace myoi {
     using std::map, std::string;
     const static map<string, const char *> mimes{
             {".html", "text/html"},
-            {".htm", "text/html"},
-            {".gif", "image/gif"},
-            {".png", "image/png"},
-            {".jpg", "image/jpeg"},
+            {".htm",  "text/html"},
+            {".gif",  "image/gif"},
+            {".png",  "image/png"},
+            {".jpg",  "image/jpeg"},
             {".jpeg", "image/jpeg"}
     };
 
@@ -49,11 +49,11 @@ namespace myoi {
         return fileStat_.st_size;
     }
 
-    const char * FileInfo::filename() const {
+    const char *FileInfo::filename() const {
         return fileName_.c_str();
     }
 
-    const char * FileInfo::mime() const {
+    const char *FileInfo::mime() const {
         auto pos = ::strrchr(fileName_.c_str(), '.');
         if (pos != nullptr && mimes.count(pos)) {
             return mimes.at(pos);

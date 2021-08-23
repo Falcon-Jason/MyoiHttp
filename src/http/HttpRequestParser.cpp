@@ -50,8 +50,8 @@ namespace myoi {
     }
 
     void HttpRequestParser::parse(const char *p) {
-        for( ;*p != '\0'; p++) {
-            if(!parseOne(*p)) {
+        for (; *p != '\0'; p++) {
+            if (!parseOne(*p)) {
                 status_ = Status::FAILURE;
                 return;
             }
@@ -146,7 +146,7 @@ namespace myoi {
     }
 
     bool HttpRequestParser::onParsingHeaderName(char ch) {
-        if(ch == ':') {
+        if (ch == ':') {
             headerToParse = request_.headers_.insert({std::move(buffer_), ""}).first;
             go(Status::OPEN_PARSED_HEADER_NAME);
         } else if (!isspace(ch)) {
@@ -204,7 +204,7 @@ namespace myoi {
     }
 
     bool HttpRequestParser::onParsedHeaderName(char ch) {
-        if (ch == ' '){
+        if (ch == ' ') {
             return true;
         } else if (!isspace(ch)) {
             go(Status::OPEN_PARSING_HEADER_VALUE);

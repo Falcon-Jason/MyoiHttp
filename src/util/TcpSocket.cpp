@@ -28,8 +28,11 @@ namespace myoi {
         fildes_ = ::socket(AF_INET, SOCK_STREAM, 0);
         if (fildes_ < 0) { return false; }
 
-        auto ret = ::connect(fildes_, (sockaddr *)address.unpack(), address.size());
-        if (ret < 0) { close(); return false; }
+        auto ret = ::connect(fildes_, (sockaddr *) address.unpack(), address.size());
+        if (ret < 0) {
+            close();
+            return false;
+        }
 
         return true;
     }

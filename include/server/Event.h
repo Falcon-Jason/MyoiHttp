@@ -8,10 +8,11 @@
 #ifndef MYOI_EVENT_H
 #define MYOI_EVENT_H
 
+
 namespace myoi {
     using NativeHandle = int;
 
-    class EventHandler;
+    class EventLoop;
 
     class Event {
     public:
@@ -21,9 +22,11 @@ namespace myoi {
 
     public:
         virtual ~Event() = default;
+
         virtual NativeHandle nativeHandle() = 0;
 
-        virtual EventHandler* handler() = 0;
+        virtual EventLoop *parentLoop() = 0;
+
         virtual Mode mode() = 0;
     };
 }

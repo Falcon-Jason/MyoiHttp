@@ -5,14 +5,14 @@
  * @brief The class encapsulated multiplex IO `epoll`.
  */
 
-#include "event/EpollSelector.h"
+#include "server/EpollSelector.h"
 #include <sys/epoll.h>
 #include <unistd.h>
 
 namespace myoi {
     static epoll_event MakeEvent(Event *event, uint32_t mode) {
         epoll_event epollEvent{};
-        epollEvent.data.ptr = (void *)event;
+        epollEvent.data.ptr = (void *) event;
         epollEvent.events = mode;
         return epollEvent;
     }
@@ -28,18 +28,29 @@ namespace myoi {
         return (ret == 0);
     }
 
-    bool EpollSelector::registerEvent(Event *event, uint32_t mode) const {
-        auto epollEvent = MakeEvent(event, defaultMode_ | mode);
+    static uint32_t EpollMode(Event::Mode mode) {
+        switch (mode) {
+            case Event::Mode::READ:
+            case Event::Mode::ACCEPT:
+                return EPOLLIN;
+            case Event::Mode::WRITE:
+                return EPOLLOUT;
+        }
+        return 0;
+    }
+
+    bool EpollSelector::registerEvent(Event *event) const {
+        auto epollEvent = MakeEvent(event, defaultMode_ | EpollMode(event->mode()));
         return (epoll_ctl(fildes_, EPOLL_CTL_ADD, event->nativeHandle(), &epollEvent) == 0);
     }
 
-    bool EpollSelector::resetEvent(Event *event, uint32_t mode) const {
-        auto epollEvent = MakeEvent(event, defaultMode_ | mode);
+    bool EpollSelector::resetEvent(Event *event) const {
+        auto epollEvent = MakeEvent(event, defaultMode_ | EpollMode(event->mode()));
         return (epoll_ctl(fildes_, EPOLL_CTL_MOD, event->nativeHandle(), &epollEvent) == 0);
     }
 
-    bool EpollSelector::removeEvent(Event *event, uint32_t mode) const {
-        auto epollEvent = MakeEvent(event, defaultMode_ | mode);
+    bool EpollSelector::removeEvent(Event *event) const {
+        auto epollEvent = MakeEvent(event, defaultMode_ | EpollMode(event->mode()));
         return (epoll_ctl(fildes_, EPOLL_CTL_DEL, event->nativeHandle(), &epollEvent) == 0);
     }
 
