@@ -7,15 +7,28 @@
 
 #include "server/TcpServer.h"
 namespace myoi {
-
     class HttpServer : public TcpServer {
+    public:
+        struct Config {
+            const char *address;
+            uint16_t port;
+            int queueSize;
+            int threadCount;
+            const char *baseDir;
+
+//            const static Config DEFAULT_CONFIG;
+        };
+
     private:
         std::string baseDir_;
+        HttpServer(const char *address, uint16_t port, int threadCount,
+                   int queueSize, const char *baseDir)
+            : TcpServer{address, port, threadCount, queueSize}, baseDir_{baseDir} {}
 
     public:
-        HttpServer(const char *address, uint16_t port, int threadCount,
-                   int selectorQueueSize, const char *baseDir)
-                : TcpServer{address, port, threadCount, selectorQueueSize}, baseDir_{baseDir} {}
+        explicit HttpServer(const Config &config)
+            : HttpServer{config.address, config.port, config.threadCount,
+                         config.queueSize, config.baseDir} {}
 
         ~HttpServer() override = default;
 

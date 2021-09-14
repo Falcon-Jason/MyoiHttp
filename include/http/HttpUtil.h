@@ -65,7 +65,7 @@ namespace myoi {
 
     public:
         HttpRequest(HttpMethod method, const char *uri, HttpVersion version,
-                    decltype(headers_) headers = decltype(headers){})
+                    decltype(headers_) headers = decltype(headers_){})
                 : method_{method}, uri_{uri}, version_{version}, headers_{std::move(headers)} {}
 
         [[nodiscard]] HttpMethod method() const { return method_; }

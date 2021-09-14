@@ -13,14 +13,16 @@ void term(int signal) {
     server->stop();
 }
 
+myoi::HttpServer::Config config{
+    .address = "127.0.0.1",
+    .port = 8080,
+    .queueSize = 1024,
+    .threadCount = 16,
+    .baseDir = "/home/myoi/web"
+};
+
 int main(int argc, char **argv) {
-    server = std::make_unique<myoi::HttpServer>(
-            "0.0.0.0", 8080,
-            std::thread::hardware_concurrency() * 2, 1024,
-            "/home/jason/Documents/MyoiHttp"
-    );
-
+    server = std::make_unique<myoi::HttpServer>(config);
     signal(SIGTERM, term);
-
     return server->start();
 }

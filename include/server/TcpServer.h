@@ -37,8 +37,8 @@ namespace myoi {
         void onWrite(Event *event) override;
 
     public:
-        explicit TcpServer(const char *address, uint16_t port, int threadCount, int selectorQueueSize)
-                : EventLoop{selectorQueueSize}, pool_{threadCount}, address_{address, port} {}
+        explicit TcpServer(const char *address, uint16_t port, int threadCount, int queueSize)
+                : EventLoop{queueSize}, pool_{threadCount}, address_{address, port} {}
 
         ~TcpServer() override = default;
 
